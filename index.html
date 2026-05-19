@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomDeals — 아이 스케줄 맞춤 할인</title>
+<style>
+/* ─── RESET & BASE ─── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',sans-serif;background:#FAF8F5;color:#1A1A1A;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+:root{
+  --p:#C8472B;--pl:#F5EAE7;--pm:#F0997B;--pd:#712B13;
+  --green:#2D6A4F;--gl:#D8F0E8;
+  --blue:#1A5276;--bl:#D6EAF8;
+  --purple:#4A3580;--pul:#EDE9F8;--pud:#3C3489;
+  --amber:#7D4E00;--al:#FDF3DC;
+  --pink:#8B2252;--pinkl:#FDE8F0;
+  --text:#1A1A1A;--muted:#6B6B6B;--faint:#9E9E9E;
+  --border:#E8E2DC;--bg:#FAF8F5;--white:#FFF;--surf:#F2EDE8;
+  --rad:12px;--rad-sm:8px;--rad-lg:16px;--rad-full:999px;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+}
+
+/* ─── NAV ─── */
+nav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 28px;display:flex;align-items:center;height:56px;
+  position:sticky;top:0;z-index:200;gap:6px;
+  box-shadow:0 1px 0 var(--border);
+}
+.logo{display:flex;align-items:center;gap:9px;margin-right:28px;}
+.logo-box{width:30px;height:30px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-txt{font-size:17px;font-weight:800;color:var(--text);}
+.nav-links{display:flex;gap:0;flex:1;}
+.nav-link{font-size:13px;color:var(--muted);padding:0 14px;height:56px;display:flex;align-items:center;border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s;}
+.nav-link:hover{color:var(--text);}
+.nav-link.on{color:var(--p);border-bottom-color:var(--p);font-weight:600;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.lang-sel{font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--rad-sm);background:var(--surf);color:var(--muted);}
+.btn{font-size:13px;padding:7px 14px;border-radius:var(--rad-sm);border:1px solid var(--border);background:transparent;color:var(--muted);}
+.btn.pri{background:var(--p);color:#fff;border-color:var(--p);font-weight:700;}
+.btn:hover{opacity:.88;}
+.av{width:32px;height:32px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--pd);}
+
+/* ─── SCREEN SYSTEM ─── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ─── LANDING ─── */
+.hero{max-width:720px;margin:0 auto;padding:64px 24px 48px;text-align:center;}
+.hero-pill{display:inline-flex;align-items:center;gap:5px;background:var(--pl);color:var(--p);font-size:11px;font-weight:700;padding:5px 14px;border-radius:var(--rad-full);margin-bottom:20px;letter-spacing:.4px;}
+.hero h1{font-size:34px;font-weight:900;line-height:1.25;margin-bottom:14px;color:var(--text);}
+.hero h1 em{color:var(--p);font-style:normal;}
+.hero p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:32px;}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+.hero-btn-pri{font-size:14px;font-weight:700;padding:13px 28px;border-radius:var(--rad);border:none;background:var(--p);color:#fff;letter-spacing:.2px;}
+.hero-btn-sec{font-size:14px;padding:12px 22px;border-radius:var(--rad);border:1.5px solid var(--border);background:var(--white);color:var(--muted);}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
+.feat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 16px;text-align:left;}
+.feat-icon{font-size:26px;margin-bottom:10px;}
+.feat-t{font-size:13px;font-weight:700;margin-bottom:4px;}
+.feat-d{font-size:12px;color:var(--muted);line-height:1.6;}
+.social-proof{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.sp-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:var(--border);}
+
+/* ─── ONBOARDING ─── */
+.onb-wrap{max-width:580px;margin:0 auto;padding:32px 20px;}
+.step-indicator{display:flex;gap:6px;margin-bottom:28px;}
+.step-seg{flex:1;height:4px;border-radius:2px;background:var(--surf);}
+.step-seg.done{background:var(--p);}
+.step-head{margin-bottom:24px;}
+.step-label{font-size:11px;font-weight:700;color:var(--p);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.step-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.step-sub{font-size:13px;color:var(--muted);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad-lg);padding:18px 20px;margin-bottom:14px;}
+.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card-title span{font-size:18px;}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase;}
+.fw{margin-bottom:13px;}
+input,select{width:100%;font-size:13px;padding:9px 12px;border-radius:var(--rad-sm);border:1px solid var(--border);background:var(--white);color:var(--text);outline:none;transition:border-color .15s;}
+input:focus,select:focus{border-color:var(--p);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:72px 1fr 95px;gap:7px;margin-bottom:7px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+.chip{font-size:12px;padding:6px 12px;border-radius:var(--rad-full);border:1px solid var(--border);background:var(--white);color:var(--muted);transition:all .15s;}
+.chip.on{border-color:var(--p);background:var(--pl);color:var(--p);font-weight:700;}
+.chip:hover{border-color:#bbb;}
+.add-link{font-size:12px;color:var(--p);background:none;border:none;padding:0;margin-top:2px;}
+.info-banner{background:var(--pl);border-radius:var(--rad-sm);padding:11px 14px;margin-bottom:18px;font-size:12px;color:var(--p);font-weight:600;line-height:1.6;display:flex;align-items:flex-start;gap:8px;}
+.big-btn{width:100%;padding:13px;font-size:14px;font-weight:700;background:var(--p);color:#fff;border:none;border-radius:var(--rad);letter-spacing:.2px;transition:opacity .15s;}
+.big-btn:hover{opacity:.88;}
+.big-btn.green{background:var(--green);}
+.big-btn.ghost{background:var(--white);color:var(--muted);border:1px solid var(--border);}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px;}
+.lang-chips{display:flex;flex-wrap:wrap;gap:6px;}
+
+/* ─── RESULT / FEED ─── */
+.result-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:18px 0;}
+.sb-lbl{font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;padding:10px 18px 5px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:13px;color:var(--muted);border-left:2.5px solid transparent;cursor:pointer;}
+.sb-item:hover{background:var(--surf);color:var(--text);}
+.sb-item.on{color:var(--p);border-left-color:var(--p);background:var(--pl);font-weight:600;}
+.sb-icon{font-size:16px;width:20px;text-align:center;}
+.sb-badge{margin-left:auto;font-size:10px;background:var(--p);color:#fff;padding:2px 7px;border-radius:var(--rad-full);}
+.sb-child-wrap{padding:8px 12px;}
+.sb-child{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:10px 12px;}
+.sb-child-name{font-size:12px;font-weight:700;margin-bottom:3px;}
+.sb-child-sched{font-size:11px;color:var(--muted);}
+.sb-child-free{font-size:11px;font-weight:600;color:var(--green);background:var(--gl);padding:2px 8px;border-radius:var(--rad-full);display:inline-block;margin-top:5px;}
+.content-area{padding:24px 28px;overflow-y:auto;}
+.page-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+
+/* ─── TABS ─── */
+.page-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:56px;z-index:100;padding:0 28px;}
+.page-tab{font-size:13px;padding:12px 16px;color:var(--muted);border-bottom:2.5px solid transparent;background:none;border-left:none;border-right:none;border-top:none;}
+.page-tab.on{color:var(--p);border-bottom-color:var(--p);font-weight:700;}
+
+/* ─── SMART BANNER ─── */
+.smart-banner{background:var(--pul);border:1px solid #C5BCE8;border-radius:var(--rad);padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
+.sb-spark{font-size:20px;flex-shrink:0;margin-top:1px;}
+.sb-t{font-size:14px;font-weight:700;color:var(--pud);margin-bottom:3px;}
+.sb-s{font-size:12px;color:var(--purple);line-height:1.6;}
+
+/* ─── FILTER ROW ─── */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.f-chip{font-size:12px;padding:5px 12px;border-radius:var(--rad-full);border:1px solid var(--border);background:var(--white);color:var(--muted);}
+.f-chip.on{background:var(--pl);border-color:var(--pm);color:var(--p);font-weight:600;}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:var(--rad-sm);padding:8px 13px;margin-bottom:16px;}
+.search-bar input{border:none;background:transparent;outline:none;flex:1;font-size:13px;}
+
+/* ─── TIMESLOT CARD ─── */
+.timeslot-card{background:var(--white);border:1.5px solid var(--blue);border-radius:var(--rad);padding:16px 18px;margin-bottom:18px;}
+.ts-hd{display:flex;align-items:center;gap:9px;margin-bottom:12px;}
+.ts-badge{background:var(--bl);color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--rad-full);}
+.ts-time{font-size:13px;font-weight:600;color:var(--text);}
+.ts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;}
+.ts-deal{background:var(--surf);border-radius:var(--rad-sm);padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.ts-deal-name{font-size:13px;font-weight:600;color:var(--text);}
+.ts-deal-sub{font-size:11px;color:var(--faint);margin-top:2px;}
+.ts-deal-disc{font-size:13px;font-weight:700;color:var(--p);white-space:nowrap;}
+
+/* ─── DEAL CARDS ─── */
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.dcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:16px;}
+.dcard.hl{border-color:var(--p);}
+.dcard:hover{box-shadow:var(--shadow);}
+.dcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.dcard-title{font-size:14px;font-weight:700;color:var(--text);margin-top:5px;}
+.disc{font-size:12px;font-weight:700;padding:4px 9px;background:var(--p);color:#fff;border-radius:var(--rad-sm);white-space:nowrap;}
+.why-pill{font-size:11px;color:var(--pud);background:var(--pul);padding:3px 9px;border-radius:var(--rad-full);margin-bottom:8px;display:inline-flex;align-items:center;gap:4px;}
+.dcard-meta{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.dcard-store{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.dcard-dist{font-size:11px;color:var(--faint);}
+.dcard-actions{display:flex;gap:10px;padding-top:10px;margin-top:8px;border-top:1px solid var(--border);}
+.act-btn{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);background:none;border:none;padding:0;}
+.act-btn.liked{color:var(--p);}
+.cat-pill{font-size:11px;padding:2px 8px;border-radius:var(--rad-full);font-weight:600;}
+.cp-k{background:var(--bl);color:var(--blue);}
+.cp-g{background:var(--gl);color:var(--green);}
+.cp-r{background:var(--pl);color:var(--pd);}
+.cp-s{background:var(--pinkl);color:var(--pink);}
+
+/* ─── AI LOADING & OUTPUT ─── */
+.ai-loading{padding:36px 0;text-align:center;}
+.ai-loading .emoji{font-size:32px;margin-bottom:10px;}
+.ai-loading .msg{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.dots{display:flex;gap:5px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--p);animation:pulse 1.2s ease-in-out infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.5);opacity:1}}
+.ai-output{font-size:13px;line-height:1.85;color:var(--text);}
+.ai-output .ai-head{font-weight:700;font-size:14px;color:var(--p);margin:14px 0 5px;border-left:3px solid var(--p);padding-left:9px;}
+.ai-output .ai-line{line-height:1.85;}
+.ai-output .ai-line.indent{padding-left:10px;}
+.ai-output .spacer{height:5px;}
+
+/* ─── EVENT CALENDAR ─── */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;margin-bottom:18px;}
+.ev-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:13px 14px;text-align:left;transition:all .15s;}
+.ev-card:hover{border-color:#bbb;transform:translateY(-1px);box-shadow:var(--shadow);}
+.ev-card.on{transform:translateY(-1px);box-shadow:var(--shadow);}
+.ev-icon{font-size:24px;margin-bottom:6px;}
+.ev-name{font-size:12px;font-weight:700;color:var(--text);}
+.ev-date{font-size:10px;color:var(--muted);margin-top:2px;}
+.ev-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
+.ev-tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;}
+.ev-detail{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 20px;margin-bottom:14px;}
+.ev-detail-hd{display:flex;align-items:center;gap:11px;margin-bottom:16px;}
+.ev-detail-icon{font-size:28px;}
+.ev-detail-name{font-size:16px;font-weight:800;color:var(--text);}
+.ev-detail-date{font-size:12px;color:var(--muted);margin-top:2px;}
+.ai-badge{font-size:10px;background:var(--pl);color:var(--p);padding:2px 9px;border-radius:var(--rad-full);font-weight:700;margin-left:auto;}
+.chk-list-wrap{margin-top:12px;}
+.chk-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;}
+.chk-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rad-sm);margin-bottom:5px;cursor:pointer;transition:background .15s;}
+.chk-item:not(.done){background:var(--bg);}
+.chk-item.done{background:var(--gl);}
+.chk-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:all .15s;}
+.chk-box.done{background:var(--green);border-color:var(--green);color:#fff;}
+.chk-txt{font-size:13px;}.chk-txt.done{text-decoration:line-through;color:var(--faint);}
+
+/* ─── MAP PANE ─── */
+.map-layout{display:grid;grid-template-columns:240px 1fr;}
+.map-list{padding:12px;display:flex;flex-direction:column;gap:7px;}
+.map-list-item{background:var(--white);border:1px solid var(--border);border-radius:var(--rad-sm);padding:10px 12px;cursor:pointer;}
+.map-list-item.on{border-color:var(--p);}
+.map-list-item-name{font-size:12px;font-weight:700;color:var(--text);}
+.map-list-item-sub{font-size:11px;color:var(--faint);margin-top:2px;}
+.map-area{background:#E8F0E8;position:relative;min-height:500px;overflow:hidden;}
+
+/* ─── COMMUNITY ─── */
+.comm-grid{display:grid;grid-template-columns:1fr;gap:10px;}
+.comm-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:16px;}
+.comm-user{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.comm-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.comm-name{font-size:13px;font-weight:700;}.comm-time{font-size:11px;color:var(--faint);}
+.comm-text{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px;}
+.comm-actions{display:flex;gap:12px;padding-top:8px;border-top:1px solid var(--border);}
+.comm-btn{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);background:none;border:none;padding:0;}
+.comm-btn.liked{color:var(--p);}
+.comm-input-row{display:flex;gap:8px;margin-bottom:16px;}
+.comm-input-row input{flex:1;padding:9px 13px;}
+.comm-send{padding:9px 18px;font-size:13px;font-weight:700;background:var(--p);color:#fff;border:none;border-radius:var(--rad-sm);}
+
+/* ─── SECTION LABEL ─── */
+.sec-lbl{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin:20px 0 10px;}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:680px){
+  .feat-grid{grid-template-columns:1fr;}
+  .result-layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .map-layout{grid-template-columns:1fr;}
+  .deals-grid{grid-template-columns:1fr;}
+  nav .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav id="mainNav">
+  <div class="logo">
+    <div class="logo-box">🏷️</div>
+    <span class="logo-txt">MomDeals</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <div class="nav-link on" id="navFeed" onclick="navGo('feed')">내 피드</div>
+    <div class="nav-link" id="navCal" onclick="navGo('cal')">학교 캘린더</div>
+    <div class="nav-link" id="navMap" onclick="navGo('map')">근처 지도</div>
+    <div class="nav-link" id="navComm" onclick="navGo('comm')">커뮤니티</div>
+  </div>
+  <div class="nav-right">
+    <select class="lang-sel" aria-label="언어">
+      <option>🇰🇷 한국어</option>
+      <option>🇺🇸 English</option>
+      <option>🇲🇽 Español</option>
+      <option>🇨🇳 中文</option>
+      <option>🇻🇳 Tiếng Việt</option>
+    </select>
+    <button class="btn" onclick="goScreen('s-onb')">로그인</button>
+    <button class="btn pri" onclick="goScreen('s-onb')">무료 시작</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ LANDING ═══════════════ -->
+<div class="screen on" id="s-land">
+  <div class="hero">
+    <div class="hero-pill">🇺🇸 LA · OC · 한인 엄마 커뮤니티</div>
+    <h1>아이 스케줄에 맞는<br><em>주변 할인</em>을 찾아드려요</h1>
+    <p>수영, 미술, 학원 스케줄을 입력하면<br>빈 시간에 맞는 근처 딜을 실시간 추천해드려요</p>
+    <div class="hero-btns">
+      <button class="hero-btn-pri" onclick="goScreen('s-onb')">지금 시작하기 →</button>
+      <button class="hero-btn-sec" onclick="goScreen('s-onb')">둘러보기</button>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">🤖</div><div class="feat-t">AI 맞춤 추천</div><div class="feat-d">아이 정보 분석해서 딱 맞는 딜만 추천해줘요</div></div>
+      <div class="feat-card"><div class="feat-icon">📍</div><div class="feat-t">위치 기반</div><div class="feat-d">내 동네 반경 내 할인 정보만 쏙쏙 모아드려요</div></div>
+      <div class="feat-card"><div class="feat-icon">🎒</div><div class="feat-t">학교 캘린더</div><div class="feat-d">Halloween, Earth Day 준비물 미리 알림해드려요</div></div>
+    </div>
+    <div class="social-proof">
+      <div class="sp-item">👩‍👧 엄마 2,400명 사용 중</div>
+      <div class="sp-dot"></div>
+      <div class="sp-item">📍 LA·OC·어바인·토런스</div>
+      <div class="sp-dot"></div>
+      <div class="sp-item">💰 평균 월 $120 절약</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ONBOARDING ═══════════════ -->
+<div class="screen" id="s-onb">
+  <div class="onb-wrap">
+    <div class="info-banner">🧪 <div>지금은 테스트 버전이에요. 입력하신 정보를 바탕으로 샘플 추천 결과를 보여드려요!</div></div>
+
+    <!-- STEP 1 -->
+    <div id="onb-step1">
+      <div class="step-indicator">
+        <div class="step-seg done" id="seg1"></div>
+        <div class="step-seg" id="seg2"></div>
+        <div class="step-seg" id="seg3"></div>
+        <div class="step-seg" id="seg4"></div>
+      </div>
+      <div class="step-head">
+        <div class="step-label">1단계 / 4</div>
+        <div class="step-title">언어 &amp; 기본 정보</div>
+        <div class="step-sub">편하신 언어와 기본 정보를 입력해주세요</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🌐</span>언어 선택</div>
+        <div class="lang-chips" id="langChips">
+          <button class="chip on" onclick="pickLang(this)">🇰🇷 한국어</button>
+          <button class="chip" onclick="pickLang(this)">🇺🇸 English</button>
+          <button class="chip" onclick="pickLang(this)">🇲🇽 Español</button>
+          <button class="chip" onclick="pickLang(this)">🇨🇳 中文</button>
+          <button class="chip" onclick="pickLang(this)">🇻🇳 Tiếng Việt</button>
+          <button class="chip" onclick="pickLang(this)">🇵🇭 Filipino</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>👤</span>내 정보</div>
+        <div class="row2">
+          <div class="fw"><label class="lbl">이름</label><input id="f-name" placeholder="예: 김수진"/></div>
+          <div class="fw"><label class="lbl">닉네임</label><input id="f-nick" placeholder="예: 수진맘"/></div>
+        </div>
+        <div class="fw"><label class="lbl">이메일</label><input id="f-email" type="email" placeholder="mom@email.com"/></div>
+        <div class="fw"><label class="lbl">전화번호</label><input id="f-phone" placeholder="(213) 555-0100"/></div>
+      </div>
+      <button class="big-btn" onclick="nextStep(2)">다음 단계 →</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="onb-step2" style="display:none;">
+      <div class="step-indicator">
+        <div class="step-seg done"></div><div class="step-seg done"></div>
+        <div class="step-seg"></div><div class="step-seg"></div>
+      </div>
+      <div class="step-head">
+        <div class="step-label">2단계 / 4</div>
+        <div class="step-title">내 위치 설정</div>
+        <div class="step-sub">주변 할인 정보를 찾기 위해 필요해요</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📍</span>위치</div>
+        <div class="fw"><label class="lbl">주소 (도시 / 우편번호)</label><input id="f-loc" value="Irvine, CA" placeholder="Irvine, CA 92618"/></div>
+        <div class="row2">
+          <div class="fw"><label class="lbl">주 활동 지역</label>
+            <select id="f-area"><option>Irvine</option><option>Torrance</option><option>Gardena</option><option>Cerritos</option><option>Fullerton</option><option>Rowland Heights</option><option>LA Koreatown</option></select>
+          </div>
+          <div class="fw"><label class="lbl">검색 반경</label>
+            <select id="f-rad"><option value="1">1 mile</option><option value="3" selected>3 miles</option><option value="5">5 miles</option><option value="10">10 miles</option></select>
+          </div>
+        </div>
+        <div style="background:var(--gl);border:1px solid #97C459;border-radius:var(--rad-sm);padding:11px 14px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;">📡</span>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--green);">GPS 자동 감지</div><div style="font-size:11px;color:var(--green);margin-top:1px;">현재 위치로 자동 업데이트</div></div>
+          <div style="width:38px;height:20px;background:var(--green);border-radius:var(--rad-full);position:relative;cursor:pointer;"><div style="width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px;"></div></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="big-btn ghost" onclick="nextStep(1)">← 이전</button>
+        <button class="big-btn" onclick="nextStep(3)">다음 단계 →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="onb-step3" style="display:none;">
+      <div class="step-indicator">
+        <div class="step-seg done"></div><div class="step-seg done"></div>
+        <div class="step-seg done"></div><div class="step-seg"></div>
+      </div>
+      <div class="step-head">
+        <div class="step-label">3단계 / 4</div>
+        <div class="step-title">아이 정보 &amp; 스케줄</div>
+        <div class="step-sub">빈 시간에 맞는 딜을 추천해드려요. 스케줄은 나중에 입력해도 돼요!</div>
+      </div>
+      <div id="childrenWrap">
+        <div class="card" id="child-0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div class="card-title" style="margin:0;"><span>👧</span>첫째 아이</div>
+          </div>
+          <div class="row2" style="margin-bottom:12px;">
+            <div class="fw"><label class="lbl">이름</label><input class="child-name" placeholder="예: 지아"/></div>
+            <div class="fw"><label class="lbl">나이</label>
+              <select class="child-age"><option>2살</option><option>3살</option><option>4살</option><option>5살</option><option>6살</option><option selected>7살</option><option>8살</option><option>9살</option><option>10살</option><option>11살</option><option>12살</option><option>13살+</option></select>
+            </div>
+          </div>
+          <div class="fw">
+            <label class="lbl">관심 활동</label>
+            <div class="chips">
+              <button class="chip on" onclick="tog(this)">수영</button>
+              <button class="chip" onclick="tog(this)">발레</button>
+              <button class="chip on" onclick="tog(this)">미술</button>
+              <button class="chip" onclick="tog(this)">태권도</button>
+              <button class="chip" onclick="tog(this)">피아노</button>
+              <button class="chip" onclick="tog(this)">축구</button>
+              <button class="chip" onclick="tog(this)">코딩</button>
+              <button class="chip" onclick="tog(this)">체조</button>
+            </div>
+          </div>
+          <div class="fw">
+            <label class="lbl">주간 스케줄 <span style="font-weight:400;text-transform:none;font-size:10px;">(선택)</span></label>
+            <div id="sched-0">
+              <div class="row3"><select><option>월</option><option>화</option><option selected>수</option><option>목</option><option>금</option><option>토</option><option>일</option></select><input placeholder="수영 레슨"/><input placeholder="3–5pm"/></div>
+              <div class="row3"><select><option>월</option><option>화</option><option>수</option><option>목</option><option selected>금</option><option>토</option><option>일</option></select><input placeholder="미술 학원"/><input placeholder="4–6pm"/></div>
+            </div>
+            <button class="add-link" onclick="addSched('sched-0')">+ 스케줄 추가</button>
+          </div>
+        </div>
+      </div>
+      <button class="big-btn ghost" style="margin-bottom:9px;" onclick="addChild()">+ 둘째 아이 추가</button>
+      <div class="btn-row">
+        <button class="big-btn ghost" onclick="nextStep(2)">← 이전</button>
+        <button class="big-btn" onclick="nextStep(4)">다음 단계 →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="onb-step4" style="display:none;">
+      <div class="step-indicator">
+        <div class="step-seg done"></div><div class="step-seg done"></div>
+        <div class="step-seg done"></div><div class="step-seg done"></div>
+      </div>
+      <div class="step-head">
+        <div class="step-label">4단계 / 4</div>
+        <div class="step-title">알림 설정</div>
+        <div class="step-sub">어떤 딜 소식을 받고 싶으신가요?</div>
+      </div>
+      <div class="card">
+        <div id="notifList">
+          <div class="notif-row" id="n0" onclick="togNotif('n0')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+            <div style="width:38px;height:38px;background:var(--bl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏫</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">아이 활동 · 학원 할인</div><div style="font-size:12px;color:var(--muted);">수영, 미술 등 관심 활동 관련 딜</div></div>
+            <div class="tog on" id="tog-n0"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-row" id="n1" onclick="togNotif('n1')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+            <div style="width:38px;height:38px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛒</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">식료품 · 마트 세일</div><div style="font-size:12px;color:var(--muted);">H마트, 한남, 코스트코 등</div></div>
+            <div class="tog on" id="tog-n1"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-row" id="n2" onclick="togNotif('n2')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+            <div style="width:38px;height:38px;background:var(--pl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🍜</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">식당 · 카페 할인</div><div style="font-size:12px;color:var(--muted);">런치 스페셜, 패밀리 메뉴 등</div></div>
+            <div class="tog" id="tog-n2"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-row" id="n3" onclick="togNotif('n3')" style="display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;">
+            <div style="width:38px;height:38px;background:var(--pinkl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👗</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">쇼핑 · 의류 세일</div><div style="font-size:12px;color:var(--muted);">아동복, 육아용품 할인</div></div>
+            <div class="tog" id="tog-n3"><div class="tog-thumb"></div></div>
+          </div>
+        </div>
+        <div style="background:var(--surf);border-radius:var(--rad-sm);padding:10px 13px;display:flex;align-items:center;gap:7px;margin-top:12px;">
+          <span style="font-size:15px;">⏰</span>
+          <span style="font-size:12px;color:var(--muted);">스케줄 빈 시간 1시간 전 자동 알림</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="big-btn ghost" onclick="nextStep(3)">← 이전</button>
+        <button class="big-btn" onclick="goResult()">완료 — 맞춤 딜 보러가기 🎉</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ RESULT ═══════════════ -->
+<div class="screen" id="s-result">
+  <div class="page-tabs" id="pageTabs">
+    <button class="page-tab on" id="pt-feed" onclick="switchTab('feed')">🏠 맞춤 피드</button>
+    <button class="page-tab" id="pt-cal" onclick="switchTab('cal')">📅 학교 캘린더</button>
+    <button class="page-tab" id="pt-map" onclick="switchTab('map')">📍 근처 지도</button>
+    <button class="page-tab" id="pt-comm" onclick="switchTab('comm')">💬 커뮤니티</button>
+  </div>
+
+  <!-- FEED PANE -->
+  <div id="pane-feed">
+    <div class="result-layout">
+      <div class="sidebar">
+        <div class="sb-lbl">내 아이</div>
+        <div class="sb-child-wrap">
+          <div class="sb-child">
+            <div class="sb-child-name" id="sbChildName">지아 · 7살</div>
+            <div class="sb-child-sched">수·금 수업 있음</div>
+            <div class="sb-child-free">오늘 오전 10am–2pm 여유</div>
+          </div>
+        </div>
+        <div class="sb-lbl">카테고리</div>
+        <div class="sb-item on" onclick="filterCat(this,'all')"><span class="sb-icon">🗂️</span>전체<span class="sb-badge" id="totalBadge">7</span></div>
+        <div class="sb-item" onclick="filterCat(this,'k')"><span class="sb-icon">🏫</span>아이 활동</div>
+        <div class="sb-item" onclick="filterCat(this,'g')"><span class="sb-icon">🛒</span>식료품</div>
+        <div class="sb-item" onclick="filterCat(this,'r')"><span class="sb-icon">🍜</span>식당 · 카페</div>
+        <div class="sb-item" onclick="filterCat(this,'s')"><span class="sb-icon">👗</span>쇼핑</div>
+        <div class="sb-lbl">메뉴</div>
+        <div class="sb-item" onclick="switchTab('map')"><span class="sb-icon">📍</span>근처 지도</div>
+        <div class="sb-item" onclick="switchTab('comm')"><span class="sb-icon">💬</span>커뮤니티</div>
+        <div class="sb-item" onclick="goScreen('s-onb')"><span class="sb-icon">⚙️</span>설정</div>
+      </div>
+      <div class="content-area">
+        <div class="page-title" id="feedGreeting">안녕하세요, 수진 맘!</div>
+        <div class="page-sub" id="feedSub">오늘 지아 스케줄 기준 · Irvine 3mi 내 맞춤 딜</div>
+        <div class="smart-banner">
+          <div class="sb-spark">✨</div>
+          <div>
+            <div class="sb-t" id="bannerTitle">오늘 지아 빈 시간 분석 완료</div>
+            <div class="sb-s" id="bannerSub">수요일 오전 10am–2pm 여유 · 수영+미술 관심 · 3mi 내 7개 딜 발견</div>
+          </div>
+        </div>
+        <div class="search-bar"><span>🔍</span><input placeholder="마트, 학원, 식당 검색..."/></div>
+        <div class="filter-row">
+          <div class="f-chip on" onclick="togFilter(this)">전체</div>
+          <div class="f-chip" onclick="togFilter(this)">빈 시간 추천</div>
+          <div class="f-chip" onclick="togFilter(this)">오늘만</div>
+          <div class="f-chip" onclick="togFilter(this)">1mi 이내</div>
+          <div class="f-chip" onclick="togFilter(this)">50%+ 할인</div>
+        </div>
+        <div class="timeslot-card">
+          <div class="ts-hd">
+            <span class="ts-badge">오늘 빈 시간</span>
+            <span class="ts-time">오전 10:00 – 오후 2:00 · 수요일</span>
+          </div>
+          <div class="ts-grid">
+            <div class="ts-deal"><div><div class="ts-deal-name">Aqua Kids 체험 레슨</div><div class="ts-deal-sub">0.8 mi · 수영 · 오전반</div></div><div class="ts-deal-disc">첫달 50% OFF</div></div>
+            <div class="ts-deal"><div><div class="ts-deal-name">Little Artists 미술</div><div class="ts-deal-sub">1.3 mi · 오전 체험</div></div><div class="ts-deal-disc">무료 체험</div></div>
+            <div class="ts-deal"><div><div class="ts-deal-name">H마트 오전 세일</div><div class="ts-deal-sub">2.1 mi · 10–12시</div></div><div class="ts-deal-disc">20% OFF</div></div>
+          </div>
+        </div>
+        <div class="sec-lbl">맞춤 추천</div>
+        <div class="deals-grid" id="dealsGrid"></div>
+        <div class="card" style="margin-top:18px;">
+          <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;"><span style="background:var(--pl);color:var(--p);font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;">AI 분석</span>맞춤 할인 분석 결과</div>
+          <div id="aiOut"></div>
+        </div>
+        <div id="rBtns" style="display:none;margin-top:12px;">
+          <div class="btn-row">
+            <button class="big-btn" onclick="runMockAI()">🔄 다시 추천 받기</button>
+            <button class="big-btn green" onclick="goScreen('s-onb')">✏️ 정보 수정</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAL PANE -->
+  <div id="pane-cal" style="display:none;">
+    <div style="max-width:800px;margin:0 auto;padding:24px 24px;">
+      <div class="page-title">학교 이벤트 캘린더</div>
+      <div class="page-sub" style="margin-bottom:16px;">스케줄 입력 없이도 미국 학교 행사에 맞는 준비물과 할인을 확인하세요</div>
+      <div style="background:var(--gl);border:1px solid #97C459;border-radius:var(--rad-sm);padding:10px 14px;display:flex;gap:8px;align-items:center;margin-bottom:18px;font-size:12px;color:var(--green);font-weight:600;">
+        ✨ <span>학교 캘린더를 자동으로 가져와 이벤트별 준비물과 근처 할인을 연결해드려요</span>
+      </div>
+      <div class="ev-grid" id="evGrid"></div>
+      <div id="evDetail"></div>
+    </div>
+  </div>
+
+  <!-- MAP PANE -->
+  <div id="pane-map" style="display:none;">
+    <div class="map-layout" style="min-height:calc(100vh - 104px);">
+      <div style="background:var(--white);border-right:1px solid var(--border);padding:14px;">
+        <div style="background:var(--surf);border-radius:var(--rad-sm);padding:9px 12px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:12px;">📍 Irvine, CA · 반경 3mi</div>
+        <div style="font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">근처 딜 목록</div>
+        <div class="map-list" id="mapList" style="padding:0;gap:6px;"></div>
+      </div>
+      <div class="map-area" id="mapArea">
+        <svg width="100%" height="100%" style="position:absolute;inset:0;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="40" y="40" width="110" height="65" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="175" y="30" width="85" height="75" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="290" y="48" width="130" height="52" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="30" y="145" width="95" height="75" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="165" y="155" width="75" height="60" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="275" y="145" width="140" height="80" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="60" y="250" width="115" height="42" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="235" y="245" width="160" height="48" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="42" y="310" width="125" height="85" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <rect x="215" y="322" width="190" height="75" rx="4" fill="#C8D8C8" opacity=".7"/>
+          <line x1="0" y1="125" x2="600" y2="125" stroke="white" stroke-width="11" opacity=".7"/>
+          <line x1="0" y1="222" x2="600" y2="222" stroke="white" stroke-width="6" opacity=".5"/>
+          <line x1="0" y1="298" x2="600" y2="298" stroke="white" stroke-width="6" opacity=".5"/>
+          <line x1="148" y1="0" x2="148" y2="500" stroke="white" stroke-width="11" opacity=".7"/>
+          <line x1="265" y1="0" x2="265" y2="500" stroke="white" stroke-width="6" opacity=".5"/>
+          <line x1="415" y1="0" x2="415" y2="500" stroke="white" stroke-width="6" opacity=".5"/>
+          <circle cx="230" cy="250" r="75" fill="#C8472B" opacity=".07" stroke="#C8472B" stroke-width="1.5"/>
+          <circle cx="230" cy="250" r="11" fill="#C8472B" stroke="white" stroke-width="3"/>
+          <g transform="translate(115,165)"><rect x="-45" y="-24" width="90" height="24" rx="12" fill="white" stroke="#1A5276" stroke-width="1.5" opacity=".95"/><text x="0" y="-7" text-anchor="middle" font-size="11" fill="#1A5276" font-weight="700">수영 -50%</text><polygon points="0,4 -6,-2 6,-2" fill="#1A5276"/></g>
+          <g transform="translate(345,190)"><rect x="-42" y="-24" width="84" height="24" rx="12" fill="white" stroke="#C8472B" stroke-width="1.5" opacity=".95"/><text x="0" y="-7" text-anchor="middle" font-size="11" fill="#C8472B" font-weight="700">순두부 $9.99</text><polygon points="0,4 -6,-2 6,-2" fill="#C8472B"/></g>
+          <g transform="translate(165,325)"><rect x="-40" y="-24" width="80" height="24" rx="12" fill="white" stroke="#2D6A4F" stroke-width="1.5" opacity=".95"/><text x="0" y="-7" text-anchor="middle" font-size="11" fill="#2D6A4F" font-weight="700">H마트 -40%</text><polygon points="0,4 -6,-2 6,-2" fill="#2D6A4F"/></g>
+          <g transform="translate(358,345)"><rect x="-40" y="-24" width="80" height="24" rx="12" fill="white" stroke="#8B2252" stroke-width="1.5" opacity=".95"/><text x="0" y="-7" text-anchor="middle" font-size="11" fill="#8B2252" font-weight="700">Target -50%</text><polygon points="0,4 -6,-2 6,-2" fill="#8B2252"/></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMM PANE -->
+  <div id="pane-comm" style="display:none;">
+    <div style="max-width:680px;margin:0 auto;padding:24px 20px;">
+      <div class="page-title">커뮤니티</div>
+      <div class="page-sub" style="margin-bottom:16px;">엄마들이 직접 올리는 실시간 할인 정보</div>
+      <div class="comm-input-row">
+        <input placeholder="할인 정보를 공유해보세요..."/>
+        <button class="comm-send">올리기</button>
+      </div>
+      <div class="comm-grid" id="commGrid"></div>
+    </div>
+  </div>
+
+</div><!-- /s-result -->
+
+<style>
+.tog{width:38px;height:21px;background:var(--border);border-radius:var(--rad-full);position:relative;flex-shrink:0;transition:background .2s;}
+.tog.on{background:var(--p);}
+.tog-thumb{width:17px;height:17px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s;}
+.tog.on .tog-thumb{left:19px;}
+</style>
+
+<script>
+// ─── DATA ───
+const DEALS=[
+  {id:0,cat:'k',title:'수영 레슨 등록 할인',store:'Aqua Kids Irvine',dist:'0.8 mi',disc:'-50%',why:'지아 수영 관심 + 수요일 오전 여유',liked:false,likes:24,comments:7},
+  {id:1,cat:'k',title:'미술 체험 수업 무료',store:'Little Artists Studio',dist:'1.3 mi',disc:'무료',why:'지아 미술 관심 + 학원 없는 수요일',liked:false,likes:41,comments:13},
+  {id:2,cat:'g',title:'H마트 소고기 갈비 세일',store:'H Mart Irvine',dist:'2.1 mi',disc:'-40%',why:'',liked:false,likes:18,comments:5},
+  {id:3,cat:'r',title:'BCD 순두부 런치 스페셜',store:'BCD Tofu House',dist:'1.8 mi',disc:'$9.99',why:'',liked:false,likes:33,comments:9},
+  {id:4,cat:'s',title:'Target 아동복 클리어런스',store:'Target Irvine Spectrum',dist:'2.8 mi',disc:'-50%',why:'',liked:false,likes:28,comments:6},
+  {id:5,cat:'g',title:'Costco 유아용품 행사',store:'Costco Irvine',dist:'3.0 mi',disc:'-15%',why:'',liked:false,likes:15,comments:3},
+  {id:6,cat:'k',title:'태권도 체험 무료',store:'Tiger Taekwondo',dist:'1.5 mi',disc:'무료 체험',why:'',liked:false,likes:11,comments:4},
+];
+const EVENTS=[
+  {id:'halloween',icon:'👻',name:'Halloween',date:'Oct 31',c:'#7D4E00',bg:'#FDF3DC',items:['코스튬','캔디 바구니','호박 장식','야광 스틱','분장 용품','학교 퍼레이드 의상']},
+  {id:'thanksgiving',icon:'🦃',name:'Thanksgiving',date:'Nov 27',c:'#C8472B',bg:'#F5EAE7',items:['감사 카드 만들기 재료','요리 재료','테이블 데코','파이 재료']},
+  {id:'christmas',icon:'🎄',name:'Winter Break',date:'Dec 22',c:'#2D6A4F',bg:'#D8F0E8',items:['선물 포장지','크리스마스 카드','트리 장식','산타 선물 목록']},
+  {id:'valentines',icon:'💝',name:"Valentine's Day",date:'Feb 14',c:'#8B2252',bg:'#FDE8F0',items:['카드 30장','사탕 봉투','스티커','선물 포장지']},
+  {id:'stpatricks',icon:'🍀',name:"St. Patrick's Day",date:'Mar 17',c:'#2D6A4F',bg:'#D8F0E8',items:['초록색 옷','클로버 만들기 재료','초록 액세서리']},
+  {id:'earthday',icon:'🌍',name:'Earth Day',date:'Apr 22',c:'#2D6A4F',bg:'#D8F0E8',items:['재활용 프로젝트 재료','씨앗/화분','에코백','색연필']},
+  {id:'backtoschool',icon:'🎒',name:'Back to School',date:'Aug',c:'#1A5276',bg:'#D6EAF8',items:['가방','필통','공책 15권','크레용','가위·풀','도시락통']},
+  {id:'100thday',icon:'💯',name:'100th Day of School',date:'Feb',c:'#4A3580',bg:'#EDE9F8',items:['100개 컬렉션','코스튬 아이디어','100 장식 스티커']},
+  {id:'fieldday',icon:'⚽',name:'Field Day',date:'May',c:'#1A5276',bg:'#D6EAF8',items:['운동복·반바지','물병 32oz+','선크림 SPF50+','간식']},
+  {id:'memday',icon:'🇺🇸',name:'Memorial Day',date:'May 26',c:'#C8472B',bg:'#F5EAE7',items:['바베큐 재료','선크림','물놀이 용품','아이스박스']},
+];
+const MOCK_POSTS=[
+  {av:'김',avBg:'#F5EAE7',avC:'#712B13',name:'김수진 엄마',loc:'어바인',time:'32분 전',text:'H마트 소고기 갈비 $5.99/lb 세일 중이에요! 오늘까지래요. 어바인점 기준 재고 두 팩 남아있었어요 🥩',likes:24,comments:7,liked:false},
+  {av:'박',avBg:'#D6EAF8',avC:'#1A5276',name:'박지영 엄마',loc:'토런스',time:'1시간 전',text:'Aqua Kids 수영 레슨 첫달 50% 해요 !! 8살 딸 등록했는데 선생님 너무 친절하고 좋아요. 자리 몇 개 안 남았다고 하니 서두르세요 🏊‍♀️',likes:41,comments:13,liked:false},
+  {av:'이',avBg:'#D8F0E8',avC:'#2D6A4F',name:'이혜원 엄마',loc:'가디나',time:'2시간 전',text:'Target Dollar Section에 100th Day of School 관련 물품 나왔어요! 안경, 100 배지 다 $1.25에요. 빨리 가세요 💯',likes:18,comments:5,liked:false},
+  {av:'최',avBg:'#EDE9F8',avC:'#3C3489',name:'최민정 엄마',loc:'세리토스',time:'3시간 전',text:'BCD 순두부 런치 스페셜 $9.99 오늘도 하더라고요. 아이랑 같이 가기 좋아요. 주차도 넓고! 평일 11am-2pm만 되는 거 참고하세요 🍲',likes:33,comments:9,liked:false},
+];
+const MOCK_AI=`✨ **빈 시간 분석**
+지아가 수요일·금요일에 수업이 있어서 월·화·목이 완전히 비어있어요! 특히 오전 10시~오후 2시 사이가 황금시간대예요 😊
+
+💡 **맞춤 추천 딜 5개**
+- 🏊 **Aqua Kids 수영 레슨 첫달 50% OFF** (Irvine, 0.8mi) — 지아가 수영을 좋아하고 수요일 오전 여유가 있어 딱이에요!
+- 🎨 **Little Artists 미술 체험 무료** (1.3mi) — 미술 관심 있는 지아에게 완벽해요. 무료 체험으로 부담 없이 가볼 수 있어요
+- 🥩 **H마트 소고기 갈비 -40%** (2.1mi) — 이번주만 $5.99/lb. 수업 끝나고 장 보기 좋아요
+- 🍜 **BCD 순두부 런치 $9.99** (1.8mi) — 평일 오전 수업 끝나고 아이랑 가기 딱 좋은 시간!
+- 👗 **Target 아동복 -50%** (2.8mi) — 오는 주말까지만이니 빨리 가보세요
+
+🛒 **이번 주 장보기 팁**
+- H마트: 소고기 외에 생선도 20% 세일 중이에요. 화요일 오전이 제일 신선해요
+- Costco: 유아용품 행사 중. 기저귀·물티슈 묶음 구매하면 절약 가능해요
+
+💖 **엄마 꿀팁**
+어바인 한인 엄마 카카오톡 오픈채팅방에서 학원 정보 많이 공유해요. 'Irvine Korean Moms'로 검색해보세요!`;
+
+const MOCK_EVENT_AI={
+  halloween:`🎃 **Halloween 학교 준비물 리스트**\n- 코스튬 (학교 dress code 확인 필수! 무기류 금지)\n- 캔디 바구니 또는 트릭오트릿 백\n- 학교 파티용 간식 (아이 반 인원수 확인하세요)\n- 야광 스틱 (저녁 트릭오트릿용)\n\n🛍️ **근처에서 살 수 있는 곳**\n- **Target Dollar Section**: 코스튬 소품 $1–5, 야광 스틱 $1.25\n- **Dollar Tree**: 캔디 바구니, 장식품 모두 $1.25\n- **Walmart**: 코스튬 의상 $10–25, 캔디 대용량\n- **H마트**: 한국 과자 믹스로 독특한 캔디 바구니 만들기 가능!\n\n💰 **절약 팁**\n코스튬은 Amazon에서 미리 주문하면 반값이에요. 10월 초에 주문하세요!\n\n💖 **한인 엄마 꿀팁**\nKorean Moms 카톡방에서 작년 코스튬 나눔 많이 해요. 아이 큰 사이즈 있으면 서로 교환해보세요 😊`,
+  backtoschool:`🎒 **Back to School 준비물 리스트**\n- 학교에서 Supply List 나오면 그거 기준으로 사세요!\n- 일반 공통: 가방, 도시락통, 물병, 공책 15권+, 필통, 크레용 24색, 가위, 풀\n\n🛍️ **근처에서 살 수 있는 곳**\n- **Target**: 7월 말~8월 학용품 대세일! 백팩 $15–30\n- **Walmart**: 공책 10센트, 크레용 $1 수준으로 저렴\n- **Costco**: 색연필·크레용 대용량 묶음 가성비 최고\n- **Amazon**: Prime Day (7월)에 백팩·도시락통 50% 이상 할인\n\n💰 **절약 팁**\n학교 Supply List 나오기 전에 미리 사지 마세요! 학교마다 요구사항이 달라요\n\n💖 **한인 엄마 꿀팁**\nTarget의 Teacher 쿠폰 앱 다운받으면 추가 15% 할인돼요. 꼭 활용하세요!`,
+};
+
+// ─── STATE ───
+let childCount=0;
+let currentCat='all';
+let evChecked={};
+let selectedEvId=null;
+let commPosts=[...MOCK_POSTS];
+
+// ─── NAVIGATION ───
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+  const isResult=(id==='s-result');
+  document.getElementById('mainNav').style.display=isResult?'flex':'flex';
+  if(id==='s-result'){
+    document.getElementById('navLinks').style.display='flex';
+    renderDeals(currentCat);
+    renderMapList();
+    renderComm();
+  }
+}
+function navGo(tab){
+  if(document.getElementById('s-result').classList.contains('on')) switchTab(tab);
+  else{goScreen('s-result');switchTab(tab);}
+}
+
+// ─── ONBOARDING ───
+function nextStep(n){
+  for(let i=1;i<=4;i++) document.getElementById('onb-step'+i).style.display=i===n?'block':'none';
+}
+function pickLang(el){
+  document.querySelectorAll('#langChips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function tog(el){el.classList.toggle('on');}
+function addSched(id){
+  const c=document.getElementById(id);
+  const d=document.createElement('div');
+  d.className='row3';
+  d.innerHTML='<select><option>월</option><option>화</option><option>수</option><option>목</option><option>금</option><option>토</option><option>일</option></select><input placeholder="활동명"/><input placeholder="시간"/>';
+  c.appendChild(d);
+}
+function addChild(){
+  childCount++;
+  const labels=['첫째','둘째','셋째','넷째'];
+  const wrap=document.getElementById('childrenWrap');
+  const d=document.createElement('div');
+  d.className='card';d.id='child-'+childCount;
+  d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div class="card-title" style="margin:0;"><span>👦</span>${labels[childCount]||childCount+1+'번째'} 아이</div><button style="font-size:12px;color:var(--faint);background:none;border:none;cursor:pointer;" onclick="this.closest('.card').remove()">삭제</button></div><div class="row2" style="margin-bottom:12px;"><div class="fw"><label class="lbl">이름</label><input placeholder="이름"/></div><div class="fw"><label class="lbl">나이</label><select><option>2살</option><option>3살</option><option>4살</option><option>5살</option><option>6살</option><option selected>7살</option><option>8살</option><option>9살</option><option>10살</option></select></div></div><div class="fw"><label class="lbl">관심 활동</label><div class="chips">${['수영','발레','미술','태권도','피아노','축구','코딩','체조'].map(a=>`<button class="chip" onclick="tog(this)">${a}</button>`).join('')}</div></div><div class="fw"><label class="lbl">주간 스케줄</label><div id="sched-${childCount}"></div><button class="add-link" onclick="addSched('sched-${childCount}')">+ 스케줄 추가</button></div>`;
+  wrap.appendChild(d);
+}
+function togNotif(id){document.getElementById('tog-'+id).classList.toggle('on');}
+function goResult(){
+  const name=document.getElementById('f-name').value||'수진';
+  const nick=document.getElementById('f-nick').value||name+'맘';
+  const loc=document.getElementById('f-loc').value||'Irvine, CA';
+  const rad=document.getElementById('f-rad').value||'3';
+  const childName=document.querySelector('.child-name')?.value||'지아';
+  const childAge=document.querySelector('.child-age')?.value||'7살';
+  document.getElementById('feedGreeting').textContent=`안녕하세요, ${nick}!`;
+  document.getElementById('feedSub').textContent=`오늘 ${childName} 스케줄 기준 · ${loc} ${rad}mi 내 맞춤 딜`;
+  document.getElementById('bannerTitle').textContent=`오늘 ${childName} 빈 시간 분석 완료`;
+  document.getElementById('bannerSub').textContent=`수요일 오전 10am–2pm 여유 · 수영+미술 관심 · ${rad}mi 내 7개 딜 발견`;
+  document.getElementById('sbChildName').textContent=`${childName} · ${childAge}`;
+  // Update nav
+  const navRight=document.getElementById('mainNav').querySelector('.nav-right');
+  navRight.innerHTML=`<span style="font-size:12px;color:var(--muted);">📍 ${loc}</span><select class="lang-sel"><option>🇰🇷 한국어</option><option>🇺🇸 English</option></select><button class="btn pri" onclick="showPostModal()" style="font-size:12px;padding:5px 12px;">+ 딜 올리기</button><div class="av">${name[0]||'김'}</div>`;
+  goScreen('s-result');
+  switchTab('feed');
+  runMockAI();
+}
+
+// ─── TABS ───
+function switchTab(t){
+  ['feed','cal','map','comm'].forEach(x=>{
+    const btn=document.getElementById('pt-'+x);
+    const pane=document.getElementById('pane-'+x);
+    if(btn) btn.classList.toggle('on',x===t);
+    if(pane) pane.style.display=x===t?'block':'none';
+  });
+  if(t==='cal'&&!document.getElementById('evGrid').children.length) buildEvGrid();
+  if(t==='comm') renderComm();
+  if(t==='map') renderMapList();
+}
+
+// ─── DEALS ───
+function catPill(cat){
+  const m={k:'<span class="cat-pill cp-k">아이활동</span>',g:'<span class="cat-pill cp-g">식료품</span>',r:'<span class="cat-pill cp-r">식당</span>',s:'<span class="cat-pill cp-s">쇼핑</span>'};
+  return m[cat]||'';
+}
+function renderDeals(cat){
+  currentCat=cat;
+  const grid=document.getElementById('dealsGrid');
+  const filtered=cat==='all'?DEALS:DEALS.filter(d=>d.cat===cat);
+  grid.innerHTML=filtered.map(d=>`
+    <div class="dcard${d.why?' hl':''}" id="deal-${d.id}">
+      <div class="dcard-top">
+        <div>${catPill(d.cat)}<div class="dcard-title">${d.title}</div></div>
+        <span class="disc">${d.disc}</span>
+      </div>
+      ${d.why?`<div class="why-pill">✨ ${d.why}</div>`:''}
+      <div class="dcard-meta">
+        <span class="dcard-store">🏪 ${d.store}</span>
+        <span class="dcard-dist">📍 ${d.dist}</span>
+      </div>
+      <div class="dcard-actions">
+        <button class="act-btn${d.liked?' liked':''}" onclick="likeDeal(${d.id})">👍 ${d.likes}</button>
+        <button class="act-btn">💬 ${d.comments}</button>
+        <button class="act-btn">🔗 공유</button>
+      </div>
+    </div>
+  `).join('');
+}
+function likeDeal(id){
+  const d=DEALS.find(x=>x.id===id);
+  d.liked=!d.liked;d.likes+=d.liked?1:-1;
+  renderDeals(currentCat);
+}
+function filterCat(el,cat){
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  renderDeals(cat);
+}
+function togFilter(el){el.classList.toggle('on');}
+
+// ─── MOCK AI ───
+function runMockAI(){
+  document.getElementById('rBtns').style.display='none';
+  document.getElementById('aiOut').innerHTML=`<div class="ai-loading"><div class="emoji">🤖</div><div class="msg">AI가 맞춤 할인을 분석 중이에요...</div><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  setTimeout(()=>{
+    document.getElementById('aiOut').innerHTML=`<div class="ai-output">${fmtAI(MOCK_AI)}</div>`;
+    document.getElementById('rBtns').style.display='block';
+    document.getElementById('aiOut').scrollIntoView({behavior:'smooth',block:'nearest'});
+  },2500);
+}
+function fmtAI(t){
+  return t.split('\n').map(l=>{
+    if(!l.trim()) return'<div class="spacer"></div>';
+    if(l.match(/^\*\*(.+)\*\*$/)||l.match(/^\d+\.\s\*\*/)) return`<div class="ai-head">${l.replace(/\*\*/g,'')}</div>`;
+    const c=l.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    return`<div class="ai-line${l.startsWith('-')||l.startsWith('•')?' indent':''}">${c}</div>`;
+  }).join('');
+}
+
+// ─── EVENTS ───
+function buildEvGrid(){
+  const g=document.getElementById('evGrid');
+  g.innerHTML='';
+  EVENTS.forEach(ev=>{
+    const b=document.createElement('button');
+    b.className='ev-card'+(selectedEvId===ev.id?' on':'');
+    b.style.borderColor=selectedEvId===ev.id?ev.c:'var(--border)';
+    b.innerHTML=`<div class="ev-icon">${ev.icon}</div><div class="ev-name">${ev.name}</div><div class="ev-date">${ev.date}</div><div class="ev-tags">${ev.items.slice(0,2).map(i=>`<span class="ev-tag" style="background:${ev.bg};color:${ev.c};">${i}</span>`).join('')}${ev.items.length>2?`<span style="font-size:10px;color:var(--faint)">+${ev.items.length-2}개</span>`:''}</div>`;
+    b.onclick=()=>showEventDetail(ev);
+    g.appendChild(b);
+  });
+}
+function showEventDetail(ev){
+  selectedEvId=ev.id; buildEvGrid();
+  const det=document.getElementById('evDetail');
+  det.style.display='block';
+  det.innerHTML=`<div class="ev-detail"><div class="ev-detail-hd"><div class="ev-detail-icon">${ev.icon}</div><div><div class="ev-detail-name">${ev.name}</div><div class="ev-detail-date">${ev.date}</div></div><div class="ai-badge">AI 추천</div></div><div id="evAiOut-${ev.id}"><div class="ai-loading"><div class="emoji" style="font-size:24px;">${ev.icon}</div><div class="msg">${ev.name} 준비물 분석 중...</div><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div><div class="chk-list-wrap"><div class="chk-lbl">준비물 체크리스트</div>${ev.items.map(item=>`<div class="chk-item${evChecked[ev.id+item]?' done':''}" id="ec-${ev.id}-${item.replace(/\s+/g,'_')}" onclick="togEvChk('${ev.id}','${item}')"><div class="chk-box${evChecked[ev.id+item]?' done':''}">${evChecked[ev.id+item]?'✓':''}</div><span class="chk-txt${evChecked[ev.id+item]?' done':''}">${item}</span></div>`).join('')}</div></div>`;
+  det.scrollIntoView({behavior:'smooth',block:'start'});
+  const mockTxt=MOCK_EVENT_AI[ev.id]||`🎉 **${ev.name} 준비물 리스트**\n${ev.items.map(i=>`- ${i}`).join('\n')}\n\n🛍️ **어디서 살까요?**\n- Target, Walmart, Dollar Tree, Amazon에서 구매 가능해요!\n\n💰 **절약 팁**\n미리 준비할수록 더 저렴해요. 행사 2주 전에 사세요!\n\n💖 **한인 엄마 꿀팁**\n커뮤니티에서 중고 나눔도 많이 해요. 먼저 물어보세요!`;
+  setTimeout(()=>{
+    const el=document.getElementById(`evAiOut-${ev.id}`);
+    if(el) el.innerHTML=`<div class="ai-output" style="margin-bottom:14px;">${fmtAI(mockTxt)}</div>`;
+  },2000);
+}
+function togEvChk(eid,item){
+  const k=eid+item; evChecked[k]=!evChecked[k];
+  const id=`ec-${eid}-${item.replace(/\s+/g,'_')}`;
+  const el=document.getElementById(id); if(!el)return;
+  el.className='chk-item'+(evChecked[k]?' done':'');
+  const box=el.querySelector('.chk-box'); box.className='chk-box'+(evChecked[k]?' done':''); box.textContent=evChecked[k]?'✓':'';
+  el.querySelector('.chk-txt').className='chk-txt'+(evChecked[k]?' done':'');
+}
+
+// ─── MAP ───
+function renderMapList(){
+  const ml=document.getElementById('mapList');
+  if(!ml)return;
+  ml.innerHTML=DEALS.map(d=>`
+    <div class="map-list-item">
+      <div class="map-list-item-name">${d.title.substring(0,20)}${d.title.length>20?'...':''} ${d.disc}</div>
+      <div class="map-list-item-sub">${d.dist} · ${catPill(d.cat).replace(/<[^>]+>/g,'')}</div>
+    </div>
+  `).join('');
+}
+
+// ─── COMMUNITY ───
+function renderComm(){
+  const grid=document.getElementById('commGrid');
+  if(!grid)return;
+  grid.innerHTML=commPosts.map((p,i)=>`
+    <div class="comm-card">
+      <div class="comm-user">
+        <div class="comm-av" style="background:${p.avBg};color:${p.avC};">${p.av}</div>
+        <div><div class="comm-name">${p.name}</div><div class="comm-time">${p.time} · ${p.loc}</div></div>
+      </div>
+      <div class="comm-text">${p.text}</div>
+      <div class="comm-actions">
+        <button class="comm-btn${p.liked?' liked':''}" onclick="likePost(${i})">👍 ${p.likes}</button>
+        <button class="comm-btn">💬 ${p.comments}</button>
+        <button class="comm-btn">🔗 공유</button>
+      </div>
+    </div>
+  `).join('');
+}
+function likePost(i){
+  commPosts[i].liked=!commPosts[i].liked;
+  commPosts[i].likes+=commPosts[i].liked?1:-1;
+  renderComm();
+}
+</script>
+
+</body>
+</html>
