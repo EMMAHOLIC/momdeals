@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomDeals 맘딜 — 내 주변 핫딜 지도 및 실시간 재고 현황</title>
+<style>
+:root {
+  --primary: #D85A30;
+  --primary-light: #FAECE7;
+  --background: #FAF8F5;
+  --surface: #FFFFFF;
+  --border: #E8E2DC;
+  --text-main: #1A1A1A;
+  --text-sub: #6B6B6B;
+  --text-muted: #9E9E9E;
+  
+  --purple: #4A3580;
+  --purple-light: #EEEDFE;
+  --purple-dark: #3C3489;
+  
+  --green: #2D6A4F;
+  --green-light: #D8F0E8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; 
+  background: var(--background); 
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 상단 네비게이션 바 */
+.navbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-icon { 
+  width: 36px; height: 36px; background: var(--primary); 
+  border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+  font-size: 20px; color: white;
+}
+.logo-title { font-size: 18px; font-weight: 700; color: var(--text-main); }
+.logo-sub { font-size: 11px; color: var(--text-sub); }
+
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.btn-back {
+  background: var(--background); border: 1px solid var(--border);
+  padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+}
+
+/* 위치 정보 바 */
+.loc-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.loc-info { display: flex; align-items: center; gap: 8px; }
+.loc-pill {
+  background: var(--primary-light); color: var(--primary);
+  padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: 600;
+}
+.loc-text { font-size: 14px; font-weight: 700; }
+
+/* 메인 대시보드 레이아웃 (데스크탑: 3단 분할 레이아웃 효과) */
+.dashboard-container {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+/* 왼쪽 사이드바: 핫딜 리스트 및 댓글 보드 */
+.sidebar-panel {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* 선택된 핫딜 요약 카드 */
+.deal-summary-card {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to bottom, #FFF, var(--background));
+}
+.deal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.store-tag { background: #E6F1FB; color: #185FA5; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+.deal-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+.deal-store { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; }
+.deal-price-row { display: flex; align-items: center; justify-content: space-between; }
+.price-badge { background: var(--primary); color: white; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 6px; }
+.stock-status { font-size: 12px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+
+/* 댓글(실재고 공유) 섹션 */
+.comments-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+.comments-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FDFDFD;
+}
+.comment-count { color: var(--primary); }
+
+.comment-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.comment-item { display: flex; gap: 10px; font-size: 13px; line-height: 1.5; }
+.c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;
+}
+.c-body { flex: 1; background: var(--background); padding: 10px 12px; border-radius: 8px; }
+.c-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.c-name { font-weight: 700; color: var(--text-main); }
+.c-time { font-size: 11px; color: var(--text-muted); }
+.c-text { color: #333; white-space: pre-wrap; }
+
+/* 댓글 입력 고정 창 */
+.comment-input-area {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.input-row { display: flex; gap: 8px; }
+.input-row input {
+  flex: 1; border: 1px solid var(--border); border-radius: 20px;
+  padding: 10px 16px; font-size: 13px; outline: none; font-family: inherit;
+}
+.btn-submit {
+  background: var(--primary); color: white; border: none;
+  padding: 0 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+/* 오른쪽 메인 영역: 웹 인터랙티브 가상 지도 */
+.map-panel {
+  position: relative;
+  background: #E5E3DF;
+  overflow: hidden;
+}
+/* 대화형 가상 지도 그래픽 요소 (CSS로 구현) */
+.mock-map {
+  width: 100%; height: 100%;
+  background-image: 
+    radial-gradient(#C4E1A5 20%, transparent 20%),
+    radial-gradient(#F3F1ED 20%, transparent 20%),
+    linear-gradient(45deg, #E0DED9 25%, transparent 25%),
+    linear-gradient(-45deg, #E0DED9 25%, transparent 25%);
+  background-size: 60px 60px, 40px 40px, 100px 100px, 100px 100px;
+  position: relative;
+}
+/* 가상 도로 가로지르기 */
+.mock-road-h { position: absolute; top: 40%; left: 0; right: 0; height: 40px; background: #FFF; border-top: 2px dashed #DDD; border-bottom: 2px dashed #DDD; }
+.mock-road-v { position: absolute; top: 0; bottom: 0; left: 55%; width: 45px; background: #FFF; border-left: 2px dashed #DDD; border-right: 2px dashed #DDD; }
+
+/* 마커 핀 스탠드 */
+.map-marker {
+  position: absolute; display: flex; flex-direction: column; align-items: center; cursor: pointer;
+  transition: transform 0.2s;
+}
+.map-marker:hover { transform: scale(1.1); }
+.pin-bubble {
+  background: var(--surface); border: 2px solid var(--primary); padding: 6px 10px;
+  border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;
+}
+.pin-leg { width: 2px; height: 8px; background: var(--primary); }
+.pin-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+
+/* 지도 위 오버레이 컨트롤 */
+.map-controls {
+  position: absolute; right: 20px; bottom: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.zoom-btn {
+  width: 40px; height: 40px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 📱 모바일 디바이스 화면 뷰포트 최적화 반응형 미디어쿼리 */
+@media (max-width: 820px) {
+  .dashboard-container { grid-template-columns: 1fr; grid-template-rows: 240px 1fr; height: auto; }
+  .map-panel { height: 240px; order: 1; }
+  .sidebar-panel { order: 2; height: auto; }
+  .comments-section { height: 450px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 네비게이션 헤더 바 -->
+<nav class="navbar">
+  <div class="logo-area" onclick="location.reload();">
+    <div class="logo-icon">🎁</div>
+    <div>
+      <div class="logo-title">맘딜 MomDeals</div>
+      <div class="logo-sub">LA · 한인 엄마들의 실시간 할인 공유</div>
+    </div>
+  </div>
+  
+  <div class="nav-right">
+    <button class="btn-back" onclick="alert('홈 피드 리스트로 돌아갑니다.')">← 목록으로</button>
+  </div>
+</nav>
+
+<!-- 상단 위치 안내 지표 -->
+<div class="loc-bar">
+  <div class="loc-info">
+    <span class="loc-pill">현재 중심지</span>
+    <span class="loc-text">Irvine, CA (내 주변 5마일 이내 검색)</span>
+  </div>
+  <div style="font-size: 12px; color: var(--text-sub);">실시간 재고 업데이트 완료</div>
+</div>
+
+<!-- 메인 반응형 보드 -->
+<main class="dashboard-container">
+  
+  <!-- 왼쪽 사이드바 패널 (핫딜 상세내용 + 실시간 댓글창 결합) -->
+  <section class="sidebar-panel">
+    
+    <!-- 핫딜 정보 요약 영역 -->
+    <div class="deal-summary-card" id="activeDealCard">
+      <div class="deal-header">
+        <span class="store-tag" id="dealCategory">🛒 식료품</span>
+        <div style="font-size:11px; color:var(--text-muted);">방금 전 업데이트</div>
+      </div>
+      <h1 class="deal-title" id="dealTitle">H마트 소고기 생갈비 대박 세일</h1>
+      <div class="deal-store" id="dealStore">H Mart Irvine · 구매한도 인당 2팩 제한</div>
+      
+      <div class="deal-price-row">
+        <span class="price-badge" id="dealDiscount">$5.99/lb (원래 $9.99)</span>
+        <span class="stock-status">🟢 실재고 여유 있음</span>
+      </div>
+    </div>
+    
+    <!-- 실시간 엄마 재고 톡방 (댓글) -->
+    <div class="comments-section">
+      <div class="comments-header">
+        <div>💬 동네 맘들의 실시간 현황 현장 제보</div>
+        <div class="comment-count">댓글 <span id="ccount">3</span>개</div>
+      </div>
+      
+      <!-- 댓글 목록 바인딩 플레이스 -->
+      <div class="comment-list" id="commentList">
+        <div class="comment-item">
+          <div class="c-avatar" style="background:#EAF3DE; color:#3B6D11;">준</div>
+          <div class="c-body">
+            <div class="c-meta">
+              <span class="c-name">준이맘 (어바인)</span>
+              <span class="c-time">10분 전</span>
+            </div>
+            <div class="c-text">방금 가봤는데 아직 세일 코너에 고기 많이 남아있어요! 상태도 아주 신선하고 좋습니다. 다들 서두르세요!</div>
+          </div>
+        </div>
+        
+        <div class="comment-item">
+          <div class="c-avatar" style="background:#E6F1FB; color:#185FA5;">윤</div>
+          <div class="c-body">
+            <div class="c-meta">
+              <span class="c-name">윤서맘 (풀러튼)</span>
+              <span class="c-time">22분 전</span>
+            </div>
+            <div class="c-text">인당 2팩 제한 확실하게 검사하더라구요! 캐셔분들이 꼼꼼하게 확인하시니 가족분들이랑 같이 가시는 게 좋을 것 같아요.</div>
+          </div>
+        </div>
+        
+        <div class="comment-item">
+          <div class="c-avatar" style="background:#FBEAF0; color:#993556;">도</div>
+          <div class="c-body">
+            <div class="c-meta">
+              <span class="c-name">도율맘 (어바인)</span>
+              <span class="c-time">45분 전</span>
+            </div>
+            <div class="c-text">양념 갈비 재우려고 4팩 사왔어요~ 주말에 손님 맞이용으로 딱입니다 ㅎㅎ 좋은 정보 감사해요!</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 실시간 재고 제보 입력창 -->
+      <div class="comment-input-area">
+        <div class="input-row">
+          <input type="text" id="commentInput" placeholder="지금 매장 현황이나 재고 상태를 공유해주세요..." onkeypress="if(event.key==='Enter') submitComment()"/>
+          <button class="btn-submit" onclick="submitComment()">제보</button>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+  
+  <!-- 오른쪽 지도 맵 패널 영역 -->
+  <section class="map-panel">
+    <div class="mock-map">
+      <!-- 가상 도로망 레이아웃 -->
+      <div class="mock-road-h"></div>
+      <div class="mock-road-v"></div>
+      
+      <!-- 지도 위 마커 핀들 (인터랙션 데이터 연동) -->
+      <!-- 마커 1: 현재 보고있는 H마트 세일 -->
+      <div class="map-marker" style="top: 35%; left: 52%;" onclick="switchDeal(0)">
+        <div class="pin-bubble" style="border-color: var(--primary); color: var(--primary);">🔥 H Mart (갈비 세일중)</div>
+        <div class="pin-leg" style="background: var(--primary);"></div>
+        <div class="pin-dot" style="background: var(--primary);"></div>
+      </div>
+      
+      <!-- 마커 2: 어린이 수영 레슨 -->
+      <div class="map-marker" style="top: 15%; left: 20%;" onclick="switchDeal(1)">
+        <div class="pin-bubble" style="border-color: #185FA5; color: #185FA5;">🧒 Aqua Kids (첫달 50%)</div>
+        <div class="pin-leg" style="background: #185FA5;"></div>
+        <div class="pin-dot" style="background: #185FA5;"></div>
+      </div>
+      
+      <!-- 마커 3: 북창동 순두부 -->
+      <div class="map-marker" style="top: 65%; left: 65%;" onclick="switchDeal(2)">
+        <div class="pin-bubble" style="border-color: #854F0B; color: #854F0B;">🍜 BCD Tofu ($9.99 특가)</div>
+        <div class="pin-leg" style="background: #854F0B;"></div>
+        <div class="pin-dot" style="background: #854F0B;"></div>
+      </div>
+    </div>
+    
+    <!-- 지도 줌 컨트롤 아이콘 팩 -->
+    <div class="map-controls">
+      <button class="zoom-btn" onclick="alert('지도 확대 시뮬레이션')">+</button>
+      <button class="zoom-btn" onclick="alert('지도 축소 시뮬레이션')">-</button>
+    </div>
+  </section>
+  
+</main>
+
+<script>
+// 지도 마커 클릭 시 왼쪽 패널의 핫딜 상세 내용이 실시간으로 교체되는 웹 목업 데이터 시스템
+const DEALS_DATABASE = [
+  {
+    category: '🛒 식료품',
+    title: 'H마트 소고기 생갈비 대박 세일',
+    store: 'H Mart Irvine · 구매한도 인당 2팩 제한',
+    discount: '$5.99/lb (원래 $9.99)',
+    stock: '🟢 실재고 여유 있음',
+    comments: [
+      { name: '준이맘 (어바인)', time: '10분 전', text: '방금 가봤는데 아직 세일 코너에 고기 많이 남아있어요! 상태도 아주 신선하고 좋습니다.', bg: '#EAF3DE', fg: '#3B6D11' },
+      { name: '윤서맘 (풀러튼)', time: '22분 전', text: '인당 2팩 제한 확실하게 검사하더라구요! 가족분들이랑 같이 가시는 게 좋을 것 같아요.', bg: '#E6F1FB', fg: '#185FA5' },
+      { name: '도율맘 (어바인)', time: '45분 전', text: '양념 갈비 재우려고 4팩 사왔어요~ 주말에 손님 맞이용으로 딱입니다 ㅎㅎ', bg: '#FBEAF0', fg: '#993556' }
+    ]
+  },
+  {
+    category: '🧒 아이활동',
+    title: '어린이 수영 레슨 첫 달 50% 가입 할인',
+    store: 'Aqua Kids Torrance · 5-12세 신규 등록 한정',
+    discount: '첫 달 50% OFF 패키지',
+    stock: '🟡 마감 임박 (클래스 소수 잔여)',
+    comments: [
+      { name: '민우엄마', time: '1시간 전', text: '여기 선생님들 친절하고 시설 깨끗해요! 50% 할인할 때 등록하는 게 핵이득입니다.', bg: '#E6F1FB', fg: '#185FA5' },
+      { name: '지아맘 (어바인)', time: '3시간 전', text: '혹시 수요일 오후 4시 반 타임 자리가 남아있나요? 아시는 맘 계시면 알려주세요~', bg: '#FAECE7', fg: '#993C1D' }
+    ]
+  },
+  {
+    category: '🍜 식당',
+    title: '북창동 순두부찌개집 평일 런치 스페셜 오픈',
+    store: 'BCD Tofu House · 점심 시간 11am-2pm 제한 특가',
+    discount: '런치 특가 단돈 $9.99',
+    stock: '🟠 대기 시간 약간 있음 (15분 내외)',
+    comments: [
+      { name: '예은맘', time: '2시간 전', text: '12시 정각에 가면 웨이팅 좀 길어요! 11시 반이나 1시 이후에 가시는 걸 추천해요.', bg: '#FAEEDA', fg: '#854F0B' }
+    ]
+  }
+];
+
+let currentDealIndex = 0;
+
+// 지도 핀 클릭시 동적 데이터 스위칭 함수
+function switchDeal(idx) {
+  currentDealIndex = idx;
+  const deal = DEALS_DATABASE[idx];
+  
+  document.getElementById('dealCategory').textContent = deal.category;
+  document.getElementById('dealTitle').textContent = deal.title;
+  document.getElementById('dealStore').textContent = deal.store;
+  document.getElementById('dealDiscount').textContent = deal.discount;
+  
+  const stockEl = document.querySelector('.stock-status');
+  stockEl.textContent = deal.stock;
+  
+  // 상태별 색상 배정 변경
+  if(deal.stock.includes('여유')) stockEl.style.color = 'var(--green)';
+  else if(deal.stock.includes('임박')) stockEl.style.color = '#CC8800';
+  else stockEl.style.color = 'var(--primary)';
+  
+  // 댓글 렌더링
+  renderComments();
+}
+
+// 댓글 목록 전용 렌더러
+function renderComments() {
+  const listContainer = document.getElementById('commentList');
+  const comments = DEALS_DATABASE[currentDealIndex].comments;
+  
+  document.getElementById('ccount').textContent = comments.length;
+  
+  listContainer.innerHTML = comments.map(c => `
+    <div class="comment-item">
+      <div class="c-avatar" style="background:${c.bg || '#EEEDFE'}; color:${c.fg || '#534AB7'};">${c.name.charAt(0)}</div>
+      <div class="c-body">
+        <div class="c-meta">
+          <span class="c-name">${c.name}</span>
+          <span class="c-time">${c.time}</span>
+        </div>
+        <div class="c-text">${c.text}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  // 스크롤 하단 밀기
+  listContainer.scrollTop = listContainer.scrollHeight;
+}
+
+// 실시간 댓글 작성 시뮬레이션 알고리즘
+function submitComment() {
+  const input = document.getElementById('commentInput');
+  const text = input.value.trim();
+  if(!text) return;
+  
+  // 데이터 배열에 새 제보 추가
+  DEALS_DATABASE[currentDealIndex].comments.push({
+    name: '나 (지아맘)',
+    time: '방금 전',
+    text: text,
+    bg: '#EEEDFE',
+    fg: '#3C3489'
+  });
+  
+  input.value = '';
+  renderComments();
+}
+</script>
+</body>
+</html>
