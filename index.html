@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomDeals — 아이 스케줄 연관 최대 할인 품목 추천</title>
+<style>
+/* ─── RESET & BASE ─── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',sans-serif;background:#FAF8F5;color:#1A1A1A;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+:root{
+  --p:#C8472B;--pl:#F5EAE7;--pm:#F0997B;--pd:#712B13;
+  --green:#2D6A4F;--gl:#D8F0E8;
+  --blue:#1A5276;--bl:#D6EAF8;
+  --purple:#4A3580;--pul:#EDE9F8;--pud:#3C3489;
+  --amber:#7D4E00;--al:#FDF3DC;
+  --pink:#8B2252;--pinkl:#FDE8F0;
+  --text:#1A1A1A;--muted:#6B6B6B;--faint:#9E9E9E;
+  --border:#E8E2DC;--bg:#FAF8F5;--white:#FFF;--surf:#F2EDE8;
+  --rad:12px;--rad-sm:8px;--rad-lg:16px;--rad-full:999px;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+}
+
+/* ─── NAV ─── */
+nav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 28px;display:flex;align-items:center;height:56px;
+  position:sticky;top:0;z-index:200;gap:6px;
+  box-shadow:0 1px 0 var(--border);
+}
+.logo{display:flex;align-items:center;gap:9px;margin-right:28px;}
+.logo-box{width:30px;height:30px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-txt{font-size:17px;font-weight:800;color:var(--text);}
+.nav-links{display:flex;gap:0;flex:1;}
+.nav-link{font-size:13px;color:var(--muted);padding:0 14px;height:56px;display:flex;align-items:center;border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s;}
+.nav-link:hover{color:var(--text);}
+.nav-link.on{color:var(--p);border-bottom-color:var(--p);font-weight:600;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.lang-sel{font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--rad-sm);background:var(--surf);color:var(--muted);}
+.btn{font-size:13px;padding:7px 14px;border-radius:var(--rad-sm);border:1px solid var(--border);background:transparent;color:var(--muted);}
+.btn.pri{background:var(--p);color:#fff;border-color:var(--p);font-weight:700;}
+.btn:hover{opacity:.88;}
+
+/* ─── SCREEN SYSTEM ─── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ─── LANDING ─── */
+.hero{max-width:720px;margin:0 auto;padding:64px 24px 48px;text-align:center;}
+.hero-pill{display:inline-flex;align-items:center;gap:5px;background:var(--pl);color:var(--p);font-size:11px;font-weight:700;padding:5px 14px;border-radius:var(--rad-full);margin-bottom:20px;letter-spacing:.4px;}
+.hero h1{font-size:34px;font-weight:900;line-height:1.25;margin-bottom:14px;color:var(--text);}
+.hero h1 em{color:var(--p);font-style:normal;}
+.hero p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:32px;}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+.hero-btn-pri{font-size:14px;font-weight:700;padding:13px 28px;border-radius:var(--rad);border:none;background:var(--p);color:#fff;letter-spacing:.2px;}
+.hero-btn-sec{font-size:14px;padding:12px 22px;border-radius:var(--rad);border:1.5px solid var(--border);background:var(--white);color:var(--muted);}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
+.feat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 16px;text-align:left;}
+.feat-icon{font-size:26px;margin-bottom:10px;}
+.feat-t{font-size:13px;font-weight:700;margin-bottom:4px;}
+.feat-d{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* ─── ONBOARDING ─── */
+.onb-wrap{max-width:580px;margin:0 auto;padding:32px 20px;}
+.step-indicator{display:flex;gap:6px;margin-bottom:28px;}
+.step-seg{flex:1;height:4px;border-radius:2px;background:var(--surf);}
+.step-seg.done{background:var(--p);}
+.step-head{margin-bottom:24px;}
+.step-label{font-size:11px;font-weight:700;color:var(--p);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.step-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.step-sub{font-size:13px;color:var(--muted);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad-lg);padding:18px 20px;margin-bottom:14px;}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase;}
+.fw{margin-bottom:13px;}
+input,select{width:100%;font-size:13px;padding:9px 12px;border-radius:var(--rad-sm);border:1px solid var(--border);background:var(--white);color:var(--text);outline:none;transition:border-color .15s;}
+input:focus,select:focus{border-color:var(--p);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.info-banner{background:var(--pl);border-radius:var(--rad-sm);padding:11px 14px;margin-bottom:18px;font-size:12px;color:var(--p);font-weight:600;line-height:1.6;display:flex;align-items:flex-start;gap:8px;}
+.big-btn{width:100%;padding:13px;font-size:14px;font-weight:700;background:var(--p);color:#fff;border:none;border-radius:var(--rad);letter-spacing:.2px;transition:opacity .15s;}
+.big-btn:hover{opacity:.88;}
+.big-btn.green{background:var(--green);}
+.big-btn.ghost{background:var(--white);color:var(--muted);border:1px solid var(--border);}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px;}
+
+/* ─── RESULT / FEED ─── */
+.result-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:18px 0;}
+.sb-lbl{font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;padding:10px 18px 5px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:13px;color:var(--muted);border-left:2.5px solid transparent;cursor:pointer;}
+.sb-item:hover{background:var(--surf);color:var(--text);}
+.sb-item.on{color:var(--p);border-left-color:var(--p);background:var(--pl);font-weight:600;}
+.sb-icon{font-size:16px;width:20px;text-align:center;}
+.sb-child-wrap{padding:8px 12px;}
+.content-area{padding:24px 28px;overflow-y:auto;}
+.page-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+
+/* ─── SMART BANNER ─── */
+.smart-banner{background:var(--pul);border:1px solid #C5BCE8;border-radius:var(--rad);padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
+.sb-spark{font-size:20px;flex-shrink:0;margin-top:1px;}
+.sb-t{font-size:14px;font-weight:700;color:var(--pud);margin-bottom:3px;}
+.sb-s{font-size:12px;color:var(--purple);line-height:1.6;}
+
+/* ─── FILTER ROW ─── */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.f-chip{font-size:12px;padding:5px 12px;border-radius:var(--rad-full);border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;}
+.f-chip.on{background:var(--pl);border-color:var(--pm);color:var(--p);font-weight:600;}
+
+/* ─── DEAL CARDS ─── */
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.dcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:16px;}
+.dcard.hl{border-color:var(--p); box-shadow: 0 4px 14px rgba(200,71,43,0.15);}
+.dcard:hover{box-shadow:var(--shadow);}
+.dcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.dcard-title{font-size:14px;font-weight:700;color:var(--text);margin-top:5px;line-height:1.4;}
+.disc{font-size:14px;font-weight:800;padding:4px 9px;background:var(--p);color:#fff;border-radius:var(--rad-sm);white-space:nowrap;}
+.why-pill{font-size:11px;color:var(--pud);background:var(--pul);padding:4px 10px;border-radius:var(--rad-full);margin-bottom:8px;display:inline-flex;align-items:center;gap:4px; font-weight:700;}
+.dcard-meta{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.dcard-store{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.dcard-dist{font-size:11px;color:var(--faint);}
+.dcard-actions{display:flex;gap:10px;padding-top:10px;margin-top:8px;border-top:1px solid var(--border);}
+.act-btn{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);background:none;border:none;padding:0;}
+.act-btn.liked{color:var(--p);}
+.cat-pill{font-size:11px;padding:2px 8px;border-radius:var(--rad-full);font-weight:600;}
+.cp-k{background:var(--bl);color:var(--blue);}
+.cp-g{background:var(--gl);color:var(--green);}
+.cp-r{background:var(--pl);color:var(--pd);}
+
+/* ─── AI LOADING & OUTPUT ─── */
+.ai-loading{padding:36px 0;text-align:center;}
+.ai-loading .msg{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.dots{display:flex;gap:5px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--p);animation:pulse 1.2s ease-in-out infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.5);opacity:1}}
+
+/* ─── EVENT CALENDAR ─── */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;margin-bottom:18px;}
+.ev-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:13px 14px;text-align:left;transition:all .15s;}
+.ev-card.on{transform:translateY(-1px);box-shadow:var(--shadow);}
+.ev-icon{font-size:24px;margin-bottom:6px;}
+.ev-name{font-size:12px;font-weight:700;color:var(--text);}
+.ev-date{font-size:10px;color:var(--muted);margin-top:2px;}
+.ev-detail{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 20px;margin-bottom:14px;}
+.ev-detail-hd{display:flex;align-items:center;gap:11px;margin-bottom:16px;}
+.ev-detail-icon{font-size:28px;}
+.ev-detail-name{font-size:16px;font-weight:800;color:var(--text);}
+.chk-list-wrap{margin-top:12px;}
+.chk-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rad-sm);margin-bottom:5px;cursor:pointer;transition:background .15s;}
+.chk-item:not(.done){background:var(--bg);}
+.chk-item.done{background:var(--gl);}
+.chk-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;}
+.chk-box.done{background:var(--green);border-color:var(--green);color:#fff;}
+.chk-txt{font-size:13px;}.chk-txt.done{text-decoration:line-through;color:var(--faint);}
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="logo">
+    <div class="logo-box">🏷️</div>
+    <span class="logo-txt">MomDeals</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <div class="nav-link on" id="navFeed" onclick="navGo('feed')">스케줄 맞춤 피드</div>
+    <div class="nav-link" id="navCal" onclick="navGo('cal')">주요 휴일 캘린더</div>
+    <div class="nav-link" id="navMap" onclick="navGo('map')">근처 지도</div>
+    <div class="nav-link" id="navComm" onclick="navGo('comm')">커뮤니티</div>
+  </div>
+  <div class="nav-right">
+    <select class="lang-sel" aria-label="언어"><option>🇰🇷 한국어</option><option>🇺🇸 English</option></select>
+    <button class="btn" onclick="goScreen('s-onb')">로그인</button>
+    <button class="btn pri" onclick="goScreen('s-onb')">무료 시작</button>
+  </div>
+</nav>
+
+<div class="screen on" id="s-land">
+  <div class="hero">
+    <div class="hero-pill">🇺🇸 LA · OC · 한인 엄마 커뮤니티</div>
+    <h1>우리아이 방과후 활동 필수품<br><em>최대 할인</em>을 찾아드려요</h1>
+    <p>수영, 미술, 학원 스케줄을 입력하면<br>해당 수업에 필요한 준비물과 주변 생필품 핫딜을 실시간 추천해드려요</p>
+    <div class="hero-btns">
+      <button class="hero-btn-pri" onclick="goScreen('s-onb')">스케줄 맞춤 할인 찾기 →</button>
+      <button class="hero-btn-sec" onclick="goScreen('s-onb')">둘러보기</button>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">🎯</div><div class="feat-t">연관 품목 저격</div><div class="feat-d">수영학원 가는 날엔 수영복 클리어런스 세일 정보를 매칭합니다</div></div>
+      <div class="feat-card"><div class="feat-icon">🤖</div><div class="feat-t">AI 스케줄 매칭</div><div class="feat-d">아이의 관심사와 일정에 꼭 맞는 최적의 핫딜만 쏙쏙 뽑아드려요</div></div>
+      <div class="feat-card"><div class="feat-icon">🎒</div><div class="feat-t">주요 기념일 체크리스트</div><div class="feat-d">미국 연방 휴일 및 기념일별 필수 준비물과 세일을 연동해드려요</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="s-onb">
+  <div class="onb-wrap">
+    <div class="info-banner">🧪 <div>지금은 테스트 버전이에요. 입력하신 정보를 바탕으로 샘플 추천 결과를 보여드려요!</div></div>
+
+    <div id="onb-step1">
+      <div class="step-indicator"><div class="step-seg done"></div><div class="step-seg"></div><div class="step-seg"></div></div>
+      <div class="step-head">
+        <div class="step-label">1단계 / 3</div>
+        <div class="step-title">기본 정보 & 내 위치 설정</div>
+        <div class="step-sub">주변 할인 정보를 찾기 위해 필요해요</div>
+      </div>
+      <div class="card">
+        <div class="row2">
+          <div class="fw"><label class="lbl">이름 / 닉네임</label><input id="f-name" placeholder="예: 김수진"/></div>
+          <div class="fw">
+            <label class="lbl">내 위치 설정</label>
+            <div style="display:flex; gap:8px;">
+              <input id="f-area" type="text" placeholder="ZIP 코드 (예: 90010)" style="flex:1;"/>
+              <button class="btn ghost" onclick="findMyLocation()" style="white-space:nowrap; height:37px; padding:0 12px; background:var(--white);">📍 현재 위치</button>
+            </div>
+            <div id="loc-status" style="font-size:11px; margin-top:6px; display:none;"></div>
+          </div>
+        </div>
+      </div>
+      <button class="big-btn" onclick="nextStep(2)">다음 단계 →</button>
+    </div>
+
+    <div id="onb-step2" style="display:none;">
+      <div class="step-indicator"><div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg"></div></div>
+      <div class="step-head">
+        <div class="step-label">2단계 / 3</div>
+        <div class="step-title">아이 방과후 활동 및 스케줄</div>
+        <div class="step-sub">입력하신 활동(예: 수영)과 관련된 장비/준비물 최대 할인을 찾아드려요!</div>
+      </div>
+      <div id="childrenWrap">
+        <div class="card">
+          <div class="row2" style="margin-bottom:12px;">
+            <div class="fw"><label class="lbl">이름</label><input class="child-name" value="지아"/></div>
+            <div class="fw"><label class="lbl">나이</label><input class="child-age" value="TK"/></div>
+          </div>
+          <div class="fw"><label class="lbl">관심 활동 (준비물 매칭 키워드)</label><input class="child-acts" value="수영, 미술, 발레"/></div>
+          <div class="fw"><label class="lbl">고정 스케줄</label><input class="child-scheds" value="수요일 오후 4시 수영, 금요일 3시 미술"/></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="big-btn ghost" onclick="nextStep(1)">← 이전</button>
+        <button class="big-btn" onclick="nextStep(3)">다음 단계 →</button>
+      </div>
+    </div>
+
+    <div id="onb-step3" style="display:none;">
+      <div class="step-indicator"><div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg done"></div></div>
+      <div class="step-head">
+        <div class="step-label">3단계 / 3</div>
+        <div class="step-title">추가 설정 완료!</div>
+        <div class="step-sub">학교를 입력하지 않아도 미국의 주요 연방 휴일 및 기념일 정보는 기본 제공됩니다.</div>
+      </div>
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="big-btn ghost" onclick="nextStep(2)">← 이전</button>
+        <button class="big-btn green" onclick="finishOnboarding()">✨ 스케줄 맞춤 할인 보기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="s-result">
+  <div class="result-layout">
+    
+    <aside class="sidebar">
+      <div class="sb-lbl">내 아이 스케줄 연동</div>
+      <div class="sb-child-wrap" id="sbChildArea"></div>
+      
+      <div class="sb-lbl">메뉴</div>
+      <div class="sb-item on" id="sbFeed" onclick="navGo('feed')"><span class="sb-icon">🎒</span>스케줄 맞춤 피드</div>
+      <div class="sb-item" id="sbCal" onclick="navGo('cal')"><span class="sb-icon">📅</span>주요 휴일 캘린더</div>
+      <div class="sb-item" id="sbMap" onclick="navGo('map')"><span class="sb-icon">📍</span>근처 마트/학원 지도</div>
+      <div class="sb-item" id="sbComm" onclick="navGo('comm')"><span class="sb-icon">💬</span>동네 꿀팁 방</div>
+    </aside>
+
+    <main class="content-area">
+      
+      <div id="p-feed" style="display:block;">
+        <h2 class="page-title">✨ 우리 아이 활동 맞춤 최대 할인 품목</h2>
+        <p class="page-sub">입력하신 스케줄 및 동네 마트 기준 가장 높은 할인율의 연관 상품입니다.</p>
+
+        <div class="smart-banner" id="aiSmartBanner">
+          <div class="sb-spark">🤖</div>
+          <div style="flex:1;">
+            <div class="sb-t" id="sumBadge">Groq AI 스케줄 연관 품목 분석</div>
+            <div class="sb-s" id="aiOut">우측의 '분석하기' 버튼을 누르면 인공지능이 오늘 스케줄에 꼭 필요한 준비물과 최대 할인 정보를 찾아냅니다!</div>
+          </div>
+          <button class="btn pri" onclick="runAIAnalysis()" style="font-size:11px;padding:5px 10px;white-space:nowrap;margin-left:8px;">🤖 분석하기</button>
+        </div>
+
+        <div class="filter-row">
+          <button class="f-chip on">전체 딜</button>
+          <button class="f-chip">🏊 수영 연관 핫딜</button>
+          <button class="f-chip">🎨 미술 연관 핫딜</button>
+          <button class="f-chip">🛒 틈새시간 장보기</button>
+        </div>
+
+        <div class="sec-lbl">🔥 오늘 스케줄 맞춤 추천 딜 (최대 할인순)</div>
+        <div class="deals-grid" id="feedDealsGrid"></div>
+      </div>
+
+      <div id="p-cal" style="display:none;">
+        <h2 class="page-title">📅 미국 주요 휴일 캘린더 & 쇼핑 체크리스트</h2>
+        <p class="page-sub">학교 정보가 없어도 1년 치 필수 기념일(마더스 데이, 준틴스 등) 준비물과 세일을 챙겨드려요!</p>
+        <div class="ev-grid" id="calGrid"></div>
+        <div id="calDetailArea"></div>
+      </div>
+
+      <div id="p-map" style="display:none;"><div class="page-title">📍 근처 지도 (기능 준비 중)</div></div>
+      <div id="p-comm" style="display:none;"><div class="page-title">💬 커뮤니티 (기능 준비 중)</div></div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ─── 초기 로드 시 자동으로 렌더링 설정 ───
+window.onload = function() {
+  renderDashboard();
+};
+
+// ─── GPS 현재 위치 찾기 기능 ───
+function findMyLocation() {
+  const statusEl = document.getElementById('loc-status');
+  const inputEl = document.getElementById('f-area');
+  
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--muted)';
+  statusEl.innerText = '위치를 찾는 중입니다...';
+
+  if (!navigator.geolocation) {
+    statusEl.style.color = 'var(--p)';
+    statusEl.innerText = '이 브라우저에서는 위치 기능을 지원하지 않습니다.';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude.toFixed(4);
+      const lon = position.coords.longitude.toFixed(4);
+      
+      inputEl.value = `GPS 좌표 (${lat}, ${lon})`;
+      statusEl.style.color = 'var(--green)';
+      statusEl.innerText = '위치를 성공적으로 불러왔습니다! ✨';
+    },
+    (error) => {
+      statusEl.style.color = 'var(--p)';
+      statusEl.innerText = '위치 접근이 거부되었거나 권한이 없습니다.';
+    }
+  );
+}
+
+// ─── STATIC DATA (작은따옴표 버그 수정 완료) ───
+const DEALS = [
+  {id:0, cat:'k', title:'Target 아동 실내 수영복 클리어런스', store:'Target Irvine', dist:'0.8 mi', disc:'70% OFF', why:'🏊 오늘 수영 레슨 연관 품목 (최대 할인!)', liked:true, likes:42},
+  {id:1, cat:'k', title:'Michaels 스케치북 & 크레용 세트', store:'Michaels', dist:'1.3 mi', disc:'Buy 1 Get 1', why:'🎨 금요일 미술 학원 준비물 비축 찬스', liked:false, likes:18},
+  {id:2, cat:'k', title:'Speedo 아동용 물안경 한정 세일', store:"Dick's Sporting Goods", dist:'2.1 mi', disc:'50% OFF', why:'🏊 수영 필수 장비 세일', liked:false, likes:25},
+  {id:3, cat:'g', title:'H마트 유기농 딸기 팩 세일', store:'H-Mart Irvine', dist:'1.2 mi', disc:'$3.99/팩', why:'🛒 수영 끝나고 픽업 전 장보기 꿀딜', liked:false, likes:30},
+  {id:4, cat:'k', title:'발레 타이츠 및 슈즈 전품목 세일', store:'Discount Dance', dist:'3.5 mi', disc:'30% OFF', why:'🩰 관심사(발레) 연관 매장 세일', liked:false, likes:12}
+];
+
+// ─── EVENTS DATA (미국 주요 휴일 연동) ───
+const EVENTS = [
+  {
+    id: "valentines", icon: "💝", name: "Valentine's Day (발렌타인 데이)", date: "2월 14일", 
+    color: "#8B2252", colorLight: "#FDE8F0", 
+    items: ["반 친구들 돌릴 미니 카드/초콜릿 (20~30개)", "선생님 드릴 작은 선물", "초콜릿 포장용 구디백"]
+  },
+  {
+    id: "mothersday", icon: "💐", name: "Mother's Day (마더스 데이)", date: "5월 둘째 주 일요일", 
+    color: "#8B2252", colorLight: "#FDE8F0", 
+    items: ["꽃다발 및 감사 카드", "스파/마사지 등 엄마를 위한 예약", "가족 외식용 특별 식당 예약"]
+  },
+  {
+    id: "memorialday", icon: "🇺🇸", name: "Memorial Day (메모리얼 데이)", date: "5월 마지막 주 월요일", 
+    color: "#1A5276", colorLight: "#D6EAF8", 
+    items: ["야외 바베큐(BBQ) 고기 및 그릴 용품", "가족 소풍/캠핑용 돗자리", "선크림 및 야외 액티비티 용품"]
+  },
+  {
+    id: "juneteenth", icon: "✊🏿", name: "Juneteenth (준틴스 / 연방 휴일)", date: "6월 19일", 
+    color: "#2D6A4F", colorLight: "#D8F0E8", 
+    items: ["연휴 맞이 가족 나들이 간식", "여름 시즌 물놀이 용품 세일 확인", "피크닉 음료 및 과일"]
+  },
+  {
+    id: "fathersday", icon: "👔", name: "Father's Day (파더스 데이)", date: "6월 셋째 주 일요일", 
+    color: "#4A3580", colorLight: "#EDE9F8", 
+    items: ["아빠 선물 (전자기기, 취미 용품, 의류 등)", "스테이크 등 특별한 식사 재료", "아이들이 직접 쓴 감사 카드"]
+  },
+  {
+    id: "independenceday", icon: "🎆", name: "Independence Day (독립기념일)", date: "7월 4일", 
+    color: "#C8472B", colorLight: "#F5EAE7", 
+    items: ["불꽃놀이 명당 관람용 의자/돗자리", "빨강·파랑·흰색 파티 장식품", "홈파티용 대용량 스낵 및 맥주"]
+  },
+  {
+    id: "backtoschool", icon: "🎒", name: "Back to School (새 학기 준비)", date: "8월 중순~말", 
+    color: "#1A5276", colorLight: "#D6EAF8", 
+    items: ["새 학기 백팩 및 런치박스", "연필, 공책 등 학교 필수 학용품", "새 학기 맞이 아동복 및 운동화"]
+  },
+  {
+    id: "laborday", icon: "🛠️", name: "Labor Day (노동절)", date: "9월 첫째 주 월요일", 
+    color: "#7D4E00", colorLight: "#FDF3DC", 
+    items: ["여름 마감 클리어런스 세일 득템", "가을 학기 시작 전 막바지 피크닉 용품", "가을 환절기 대비 아동복"]
+  },
+  {
+    id: "halloween", icon: "🎃", name: "Halloween (할로윈)", date: "10월 31일", 
+    color: "#7D4E00", colorLight: "#FDF3DC", 
+    items: ["어린이 코스튬 의상 (미리 구매 필수!)", "트릭오어트릿(Trick-or-Treat)용 대용량 캔디", "호박(잭오랜턴) 및 집 마당 장식품"]
+  },
+  {
+    id: "thanksgiving", icon: "🦃", name: "Thanksgiving (추수감사절)", date: "11월 넷째 주 목요일", 
+    color: "#C8472B", colorLight: "#F5EAE7", 
+    items: ["칠면조(Turkey) 및 전통 요리 재료", "블랙프라이데이 대비 위시리스트 작성", "가족 식사용 테이블 데코레이션"]
+  },
+  {
+    id: "christmas", icon: "🎄", name: "Christmas (크리스마스)", date: "12월 25일", 
+    color: "#2D6A4F", colorLight: "#D8F0E8", 
+    items: ["아이들 크리스마스 산타 선물", "크리스마스 트리 오너먼트 및 전구 장식", "선생님/이웃 연말 감사 기프트카드"]
+  }
+];
+
+let userProfile = { name: "지아맘", nick: "지아맘", area: "Irvine", children: [] };
+let activeEventId = "memorialday"; 
+
+// ─── ONBOARDING SYSTEM ───
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(id==='s-land') document.getElementById('mainNav').style.display='flex';
+}
+
+function nextStep(stepNum){
+  for(let i=1; i<=3; i++){
+    const el = document.getElementById('onb-step'+i);
+    if(el) el.style.display = (i===stepNum)? 'block' : 'none';
+  }
+}
+
+function finishOnboarding(){
+  userProfile.name = document.getElementById('f-name')?.value || "지아맘";
+  userProfile.area = document.getElementById('f-area')?.value || "Irvine";
+  
+  userProfile.children = [{
+    name: document.querySelector('.child-name')?.value || "지아",
+    age: document.querySelector('.child-age')?.value || "TK",
+    acts: document.querySelector('.child-acts')?.value || "수영, 미술, 발레",
+    scheds: document.querySelector('.child-scheds')?.value || "수요일 오후 4시 수영"
+  }];
+
+  renderDashboard();
+  goScreen('s-result');
+  navGo('feed');
+}
+
+// ─── NAVIGATION CONTROL ───
+function navGo(pageKey){
+  if (!document.getElementById('s-result').classList.contains('on')) {
+    goScreen('s-result');
+    if(userProfile.children.length === 0) {
+      userProfile.children = [{ name: '지아', age: 'TK', acts: '수영, 미술, 발레', scheds: '수요일 오후 4시 수영'}];
+    }
+    renderDashboard();
+  }
+
+  ['navFeed','navCal','navMap','navComm', 'sbFeed','sbCal','sbMap','sbComm'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.classList.remove('on');
+  });
+  ['p-feed','p-cal','p-map','p-comm'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+
+  if(pageKey==='feed'){
+    document.getElementById('navFeed')?.classList.add('on');
+    document.getElementById('sbFeed')?.classList.add('on');
+    document.getElementById('p-feed').style.display = 'block';
+  } else if(pageKey==='cal'){
+    document.getElementById('navCal')?.classList.add('on');
+    document.getElementById('sbCal')?.classList.add('on');
+    document.getElementById('p-cal').style.display = 'block';
+  } else if(pageKey==='map'){
+    document.getElementById('navMap')?.classList.add('on');
+    document.getElementById('sbMap')?.classList.add('on');
+    document.getElementById('p-map').style.display = 'block';
+  } else if(pageKey==='comm'){
+    document.getElementById('navComm')?.classList.add('on');
+    document.getElementById('sbComm')?.classList.add('on');
+    document.getElementById('p-comm').style.display = 'block';
+  }
+}
+
+// ─── DASHBOARD RENDERER ───
+function renderDashboard(){
+  const sa = document.getElementById('sbChildArea');
+  if(sa && userProfile.children.length > 0){
+    sa.innerHTML = userProfile.children.map(c=>`
+      <div class="sb-child" style="background:var(--surf); border:1px solid var(--border); border-radius:var(--rad); padding:10px 12px; margin-bottom:6px;">
+        <div style="font-size:12px; font-weight:700; margin-bottom:3px;">👧 ${c.name} (${c.age})</div>
+        <div style="font-size:11px; color:var(--muted);">📍 ${c.acts}</div>
+        <div style="font-size:11px; font-weight:600; color:var(--green); background:var(--gl); padding:2px 8px; border-radius:var(--rad-full); display:inline-block; margin-top:5px;">스케줄: ${c.scheds.split(',')[0]}</div>
+      </div>
+    `).join('');
+  } else if (sa) {
+    sa.innerHTML = `<div style="font-size:12px; color:var(--muted); padding:10px;">입력된 아이 정보가 없습니다.</div>`;
+  }
+  
+  renderFeedList();
+  renderCalGrid();
+  renderCalDetail();
+}
+
+function catPill(c){
+  if(c==='k') return `<span class="cat-pill cp-k">아이 활동 연관</span>`;
+  if(c==='g') return `<span class="cat-pill cp-g">식료품 장보기</span>`;
+  return `<span class="cat-pill cp-r">일반</span>`;
+}
+
+function renderFeedList(){
+  const g = document.getElementById('feedDealsGrid');
+  if(!g) return;
+  g.innerHTML = DEALS.map((d,i)=>`
+    <div class="dcard ${d.liked?'hl':''}">
+      <div class="why-pill">✨ ${d.why}</div>
+      <div class="dcard-top">
+        <div>
+          ${catPill(d.cat)}
+          <div class="dcard-title">${d.title}</div>
+        </div>
+        <span class="disc">${d.disc}</span>
+      </div>
+      <div class="dcard-meta">
+        <div class="dcard-store">📍 ${d.store}</div>
+        <div class="dcard-dist">${d.dist}</div>
+      </div>
+      <div class="dcard-actions">
+        <button class="act-btn ${d.liked?'liked':''}" onclick="toggleLike(${i})">❤️ 찜하기 ${d.likes}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleLike(idx){
+  DEALS[idx].liked = !DEALS[idx].liked;
+  DEALS[idx].likes += DEALS[idx].liked ? 1 : -1;
+  renderFeedList();
+}
+
+// ─── CALENDAR EVENT LOGIC ───
+let evChecked = {};
+function renderCalGrid(){
+  const cg = document.getElementById('calGrid');
+  if(!cg) return;
+  cg.innerHTML = EVENTS.map(e=>`
+    <button class="ev-card ${activeEventId===e.id?'on':''}" style="border-top:4px solid ${e.color}; ${activeEventId===e.id?'background:'+e.colorLight:''}" onclick="selectEvent('${e.id}')">
+      <div class="ev-icon">${e.icon}</div>
+      <div class="ev-name">${e.name}</div>
+      <div class="ev-date">${e.date}</div>
+    </button>
+  `).join('');
+}
+
+function selectEvent(id){
+  activeEventId = id;
+  renderCalGrid();
+  renderCalDetail();
+}
+
+function renderCalDetail(){
+  const area = document.getElementById('calDetailArea');
+  if(!area) return;
+  const ev = EVENTS.find(e=>e.id===activeEventId);
+  if(!ev) return;
+
+  area.innerHTML = `
+    <div class="ev-detail" style="border-left:5px solid ${ev.color};">
+      <div class="ev-detail-hd">
+        <div class="ev-detail-icon">${ev.icon}</div>
+        <div>
+          <div class="ev-detail-name">${ev.name} 준비물 핫딜 연동</div>
+          <div class="ev-detail-date">일시: ${ev.date}</div>
+        </div>
+      </div>
+      <div class="chk-list-wrap">
+        <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">🛒 기념일 맞춤 쇼핑 체크리스트</div>
+        ${ev.items.map(item=>{
+          const k = ev.id + '_' + item;
+          const done = evChecked[k] || false;
+          return `
+            <div class="chk-item ${done?'done':''}" onclick="toggleChk('${ev.id}','${item.replace(/'/g,"\\'")}')">
+              <div class="chk-box ${done?'done':''}">${done?'✓':''}</div>
+              <span class="chk-txt ${done?'done':''}">${item}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function toggleChk(evId, item){
+  const k = evId + '_' + item;
+  evChecked[k] = !evChecked[k];
+  renderCalDetail();
+}
+
+// ─── AI ANALYSIS WITH GROQ ───
+async function runAIAnalysis() {
+  const primaryChild = userProfile.children[0] || { name: '지아', age: 'TK', acts: '수영, 미술, 발레', scheds: '수요일 오후 4시' };
+  
+  let groqKey = localStorage.getItem('groq_api_key');
+  if(!groqKey || groqKey.includes('YOUR_')) {
+    groqKey = prompt('💰 무료 Groq AI 분석 모드입니다.\n\nconsole.groq.com 에서 발급받으신 무료 API 키(gsk_...)를 입력해주세요.\n본인 브라우저에만 안전하게 보관됩니다:');
+    if(!groqKey) return;
+    localStorage.setItem('groq_api_key', groqKey);
+  }
+
+  const outArea = document.getElementById('aiOut');
+  outArea.innerHTML = `
+    <div class="ai-loading">
+      <div class="emoji" style="font-size:24px; animation: pulse 1s infinite alternate; display:inline-block;">🤖</div>
+      <div class="msg" style="color:var(--purple); font-weight:700;">아이의 스케줄과 연관된 최대 할인 품목을 탐색 중입니다...</div>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>`;
+  
+  const promptText = `당신은 미국 한인 엄마들을 위한 할인 정보 도우미입니다.
+  
+  [아이 정보] 이름: ${primaryChild.name}, 활동: ${primaryChild.acts}, 고정 스케줄: ${primaryChild.scheds}
+  [위치] 미국 CA ${userProfile.area}
+  
+  다음 포맷을 엄격히 지켜 친근한 한국어로 답변하세요:
+  1. ✨ **스케줄 연관 품목 최대 할인 딜 추천** (아이의 방과후 활동 및 관심사와 직접적으로 연관된 준비물, 장비 등을 주변 매장에서 가장 높은 할인율로 살 수 있는 가상의 특가 정보 3개를 추천. 할인율과 추천 이유 강조)
+  2. 🏫 **다가오는 연방 휴일 연관 세일 팁** (주변 마트 할인 꿀팁)
+  3. ⏱️ **대기 시간 틈새 장보기 요령**`;
+  
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${groqKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: promptText }],
+        temperature: 0.7
+      })
+    });
+    
+    const data = await res.json();
+    if(data.choices && data.choices[0]) {
+      const txt = data.choices[0].message.content;
+      let formatted = txt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>');
+      outArea.innerHTML = `<div style="font-size:13px;line-height:1.75;color:#333;padding:8px 4px;">${formatted}</div>`;
+    } else {
+      throw new Error('API 응답 형식 오류');
+    }
+  } catch(err) {
+    console.error(err);
+    outArea.innerHTML = `
+      <div style="font-size:12px;color:var(--p);padding:10px;">
+        ❌ AI 분석 연결에 실패했습니다. <button onclick="localStorage.removeItem('groq_api_key'); alert('키가 초기화되었습니다.'); runAIAnalysis();" style="padding:4px 8px;font-size:11px;background:var(--p);color:white;border:none;border-radius:4px;">API 키 재입력</button>
+      </div>`;
+  }
+}
+</script>
+</body>
+</html>
