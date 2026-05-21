@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomDeals — 아이 스케줄 연관 최대 할인 품목 추천</title>
+<style>
+/* ─── RESET & BASE ─── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',sans-serif;background:#FAF8F5;color:#1A1A1A;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+:root{
+  --p:#C8472B;--pl:#F5EAE7;--pm:#F0997B;--pd:#712B13;
+  --green:#2D6A4F;--gl:#D8F0E8;
+  --blue:#1A5276;--bl:#D6EAF8;
+  --purple:#4A3580;--pul:#EDE9F8;--pud:#3C3489;
+  --amber:#7D4E00;--al:#FDF3DC;
+  --pink:#8B2252;--pinkl:#FDE8F0;
+  --text:#1A1A1A;--muted:#6B6B6B;--faint:#9E9E9E;
+  --border:#E8E2DC;--bg:#FAF8F5;--white:#FFF;--surf:#F2EDE8;
+  --rad:12px;--rad-sm:8px;--rad-lg:16px;--rad-full:999px;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+}
+
+/* ─── NAV ─── */
+nav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 28px;display:flex;align-items:center;height:56px;
+  position:sticky;top:0;z-index:200;gap:6px;
+  box-shadow:0 1px 0 var(--border);
+}
+.logo{display:flex;align-items:center;gap:9px;margin-right:28px;}
+.logo-box{width:30px;height:30px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-txt{font-size:17px;font-weight:800;color:var(--text);}
+.nav-links{display:flex;gap:0;flex:1;}
+.nav-link{font-size:13px;color:var(--muted);padding:0 14px;height:56px;display:flex;align-items:center;border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s;}
+.nav-link:hover{color:var(--text);}
+.nav-link.on{color:var(--p);border-bottom-color:var(--p);font-weight:600;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.lang-sel{font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--rad-sm);background:var(--surf);color:var(--muted);}
+.btn{font-size:13px;padding:7px 14px;border-radius:var(--rad-sm);border:1px solid var(--border);background:transparent;color:var(--muted);}
+.btn.pri{background:var(--p);color:#fff;border-color:var(--p);font-weight:700;}
+.btn:hover{opacity:.88;}
+.av{width:32px;height:32px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--pd);}
+
+/* ─── SCREEN SYSTEM ─── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ─── LANDING ─── */
+.hero{max-width:720px;margin:0 auto;padding:64px 24px 48px;text-align:center;}
+.hero-pill{display:inline-flex;align-items:center;gap:5px;background:var(--pl);color:var(--p);font-size:11px;font-weight:700;padding:5px 14px;border-radius:var(--rad-full);margin-bottom:20px;letter-spacing:.4px;}
+.hero h1{font-size:34px;font-weight:900;line-height:1.25;margin-bottom:14px;color:var(--text);}
+.hero h1 em{color:var(--p);font-style:normal;}
+.hero p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:32px;}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+.hero-btn-pri{font-size:14px;font-weight:700;padding:13px 28px;border-radius:var(--rad);border:none;background:var(--p);color:#fff;letter-spacing:.2px;}
+.hero-btn-sec{font-size:14px;padding:12px 22px;border-radius:var(--rad);border:1.5px solid var(--border);background:var(--white);color:var(--muted);}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
+.feat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 16px;text-align:left;}
+.feat-icon{font-size:26px;margin-bottom:10px;}
+.feat-t{font-size:13px;font-weight:700;margin-bottom:4px;}
+.feat-d{font-size:12px;color:var(--muted);line-height:1.6;}
+.social-proof{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.sp-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:var(--border);}
+
+/* ─── ONBOARDING ─── */
+.onb-wrap{max-width:580px;margin:0 auto;padding:32px 20px;}
+.step-indicator{display:flex;gap:6px;margin-bottom:28px;}
+.step-seg{flex:1;height:4px;border-radius:2px;background:var(--surf);}
+.step-seg.done{background:var(--p);}
+.step-head{margin-bottom:24px;}
+.step-label{font-size:11px;font-weight:700;color:var(--p);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.step-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.step-sub{font-size:13px;color:var(--muted);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad-lg);padding
