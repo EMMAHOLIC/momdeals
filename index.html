@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MomDeals — 아이 스케줄 연관 최대 할인 품목 추천</title>
+<style>
+/* ─── RESET & BASE ─── */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',sans-serif;background:#FAF8F5;color:#1A1A1A;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+:root{
+  --p:#C8472B;--pl:#F5EAE7;--pm:#F0997B;--pd:#712B13;
+  --green:#2D6A4F;--gl:#D8F0E8;
+  --blue:#1A5276;--bl:#D6EAF8;
+  --purple:#4A3580;--pul:#EDE9F8;--pud:#3C3489;
+  --amber:#7D4E00;--al:#FDF3DC;
+  --pink:#8B2252;--pinkl:#FDE8F0;
+  --text:#1A1A1A;--muted:#6B6B6B;--faint:#9E9E9E;
+  --border:#E8E2DC;--bg:#FAF8F5;--white:#FFF;--surf:#F2EDE8;
+  --rad:12px;--rad-sm:8px;--rad-lg:16px;--rad-full:999px;
+  --shadow:0 2px 12px rgba(0,0,0,.07);
+}
+
+/* ─── NAV ─── */
+nav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 28px;display:flex;align-items:center;height:56px;
+  position:sticky;top:0;z-index:200;gap:6px;
+  box-shadow:0 1px 0 var(--border);
+}
+.logo{display:flex;align-items:center;gap:9px;margin-right:28px;}
+.logo-box{width:30px;height:30px;background:var(--p);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-txt{font-size:17px;font-weight:800;color:var(--text);}
+.nav-links{display:flex;gap:0;flex:1;}
+.nav-link{font-size:13px;color:var(--muted);padding:0 14px;height:56px;display:flex;align-items:center;border-bottom:2.5px solid transparent;cursor:pointer;transition:color .15s;}
+.nav-link:hover{color:var(--text);}
+.nav-link.on{color:var(--p);border-bottom-color:var(--p);font-weight:600;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.lang-sel{font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:var(--rad-sm);background:var(--surf);color:var(--muted);}
+.btn{font-size:13px;padding:7px 14px;border-radius:var(--rad-sm);border:1px solid var(--border);background:transparent;color:var(--muted);}
+.btn.pri{background:var(--p);color:#fff;border-color:var(--p);font-weight:700;}
+.btn:hover{opacity:.88;}
+.av{width:32px;height:32px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--pd);}
+
+/* ─── SCREEN SYSTEM ─── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ─── LANDING ─── */
+.hero{max-width:720px;margin:0 auto;padding:64px 24px 48px;text-align:center;}
+.hero-pill{display:inline-flex;align-items:center;gap:5px;background:var(--pl);color:var(--p);font-size:11px;font-weight:700;padding:5px 14px;border-radius:var(--rad-full);margin-bottom:20px;letter-spacing:.4px;}
+.hero h1{font-size:34px;font-weight:900;line-height:1.25;margin-bottom:14px;color:var(--text);}
+.hero h1 em{color:var(--p);font-style:normal;}
+.hero p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:32px;}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;}
+.hero-btn-pri{font-size:14px;font-weight:700;padding:13px 28px;border-radius:var(--rad);border:none;background:var(--p);color:#fff;letter-spacing:.2px;}
+.hero-btn-sec{font-size:14px;padding:12px 22px;border-radius:var(--rad);border:1.5px solid var(--border);background:var(--white);color:var(--muted);}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
+.feat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 16px;text-align:left;}
+.feat-icon{font-size:26px;margin-bottom:10px;}
+.feat-t{font-size:13px;font-weight:700;margin-bottom:4px;}
+.feat-d{font-size:12px;color:var(--muted);line-height:1.6;}
+.social-proof{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.sp-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:var(--border);}
+
+/* ─── ONBOARDING ─── */
+.onb-wrap{max-width:580px;margin:0 auto;padding:32px 20px;}
+.step-indicator{display:flex;gap:6px;margin-bottom:28px;}
+.step-seg{flex:1;height:4px;border-radius:2px;background:var(--surf);}
+.step-seg.done{background:var(--p);}
+.step-head{margin-bottom:24px;}
+.step-label{font-size:11px;font-weight:700;color:var(--p);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.step-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.step-sub{font-size:13px;color:var(--muted);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad-lg);padding:18px 20px;margin-bottom:14px;}
+.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card-title span{font-size:18px;}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase;}
+.fw{margin-bottom:13px;}
+input,select{width:100%;font-size:13px;padding:9px 12px;border-radius:var(--rad-sm);border:1px solid var(--border);background:var(--white);color:var(--text);outline:none;transition:border-color .15s;}
+input:focus,select:focus{border-color:var(--p);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+.chip{font-size:12px;padding:6px 12px;border-radius:var(--rad-full);border:1px solid var(--border);background:var(--white);color:var(--muted);transition:all .15s;}
+.chip.on{border-color:var(--p);background:var(--pl);color:var(--p);font-weight:700;}
+.chip:hover{border-color:#bbb;}
+.add-link{font-size:12px;color:var(--p);background:none;border:none;padding:0;margin-top:2px;}
+.info-banner{background:var(--pl);border-radius:var(--rad-sm);padding:11px 14px;margin-bottom:18px;font-size:12px;color:var(--p);font-weight:600;line-height:1.6;display:flex;align-items:flex-start;gap:8px;}
+.big-btn{width:100%;padding:13px;font-size:14px;font-weight:700;background:var(--p);color:#fff;border:none;border-radius:var(--rad);letter-spacing:.2px;transition:opacity .15s;}
+.big-btn:hover{opacity:.88;}
+.big-btn.green{background:var(--green);}
+.big-btn.ghost{background:var(--white);color:var(--muted);border:1px solid var(--border);}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px;}
+.lang-chips{display:flex;flex-wrap:wrap;gap:6px;}
+
+/* ─── RESULT / FEED ─── */
+.result-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:18px 0;}
+.sb-lbl{font-size:10px;font-weight:700;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;padding:10px 18px 5px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:13px;color:var(--muted);border-left:2.5px solid transparent;cursor:pointer;}
+.sb-item:hover{background:var(--surf);color:var(--text);}
+.sb-item.on{color:var(--p);border-left-color:var(--p);background:var(--pl);font-weight:600;}
+.sb-icon{font-size:16px;width:20px;text-align:center;}
+.sb-badge{margin-left:auto;font-size:10px;background:var(--p);color:#fff;padding:2px 7px;border-radius:var(--rad-full);}
+.sb-child-wrap{padding:8px 12px;}
+.sb-child{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:10px 12px;}
+.sb-child-name{font-size:12px;font-weight:700;margin-bottom:3px;}
+.sb-child-sched{font-size:11px;color:var(--muted);}
+.content-area{padding:24px 28px;overflow-y:auto;}
+.page-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+
+/* ─── SMART BANNER ─── */
+.smart-banner{background:var(--pul);border:1px solid #C5BCE8;border-radius:var(--rad);padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
+.sb-spark{font-size:20px;flex-shrink:0;margin-top:1px;}
+.sb-t{font-size:14px;font-weight:700;color:var(--pud);margin-bottom:3px;}
+.sb-s{font-size:12px;color:var(--purple);line-height:1.6;}
+
+/* ─── FILTER ROW ─── */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.f-chip{font-size:12px;padding:5px 12px;border-radius:var(--rad-full);border:1px solid var(--border);background:var(--white);color:var(--muted);}
+.f-chip.on{background:var(--pl);border-color:var(--pm);color:var(--p);font-weight:600;}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:var(--rad-sm);padding:8px 13px;margin-bottom:16px;}
+.search-bar input{border:none;background:transparent;outline:none;flex:1;font-size:13px;}
+
+/* ─── DEAL CARDS (FOCUS ON MAX DISCOUNT) ─── */
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.dcard{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:16px;}
+.dcard.hl{border-color:var(--p); box-shadow: 0 4px 14px rgba(200,71,43,0.15);}
+.dcard:hover{box-shadow:var(--shadow);}
+.dcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.dcard-title{font-size:14px;font-weight:700;color:var(--text);margin-top:5px;line-height:1.4;}
+.disc{font-size:14px;font-weight:800;padding:4px 9px;background:var(--p);color:#fff;border-radius:var(--rad-sm);white-space:nowrap;}
+.why-pill{font-size:11px;color:var(--pud);background:var(--pul);padding:4px 10px;border-radius:var(--rad-full);margin-bottom:8px;display:inline-flex;align-items:center;gap:4px; font-weight:700;}
+.dcard-meta{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.dcard-store{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.dcard-dist{font-size:11px;color:var(--faint);}
+.dcard-actions{display:flex;gap:10px;padding-top:10px;margin-top:8px;border-top:1px solid var(--border);}
+.act-btn{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);background:none;border:none;padding:0;}
+.act-btn.liked{color:var(--p);}
+.cat-pill{font-size:11px;padding:2px 8px;border-radius:var(--rad-full);font-weight:600;}
+.cp-k{background:var(--bl);color:var(--blue);}
+.cp-g{background:var(--gl);color:var(--green);}
+.cp-r{background:var(--pl);color:var(--pd);}
+
+/* ─── AI LOADING & OUTPUT ─── */
+.ai-loading{padding:36px 0;text-align:center;}
+.ai-loading .emoji{font-size:32px;margin-bottom:10px;}
+.ai-loading .msg{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.dots{display:flex;gap:5px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--p);animation:pulse 1.2s ease-in-out infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.5);opacity:1}}
+.ai-output{font-size:13px;line-height:1.85;color:var(--text);}
+.ai-output .ai-head{font-weight:700;font-size:14px;color:var(--p);margin:14px 0 5px;border-left:3px solid var(--p);padding-left:9px;}
+
+/* ─── EVENT CALENDAR ─── */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;margin-bottom:18px;}
+.ev-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:13px 14px;text-align:left;transition:all .15s;}
+.ev-card.on{transform:translateY(-1px);box-shadow:var(--shadow);}
+.ev-icon{font-size:24px;margin-bottom:6px;}
+.ev-name{font-size:12px;font-weight:700;color:var(--text);}
+.ev-date{font-size:10px;color:var(--muted);margin-top:2px;}
+.ev-detail{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:18px 20px;margin-bottom:14px;}
+.ev-detail-hd{display:flex;align-items:center;gap:11px;margin-bottom:16px;}
+.ev-detail-icon{font-size:28px;}
+.ev-detail-name{font-size:16px;font-weight:800;color:var(--text);}
+.chk-list-wrap{margin-top:12px;}
+.chk-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rad-sm);margin-bottom:5px;cursor:pointer;transition:background .15s;}
+.chk-item:not(.done){background:var(--bg);}
+.chk-item.done{background:var(--gl);}
+.chk-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;}
+.chk-box.done{background:var(--green);border-color:var(--green);color:#fff;}
+.chk-txt{font-size:13px;}.chk-txt.done{text-decoration:line-through;color:var(--faint);}
+
+/* ─── MAP PANE ─── */
+.map-layout{display:grid;grid-template-columns:240px 1fr;}
+.map-list{padding:12px;display:flex;flex-direction:column;gap:7px;}
+.map-list-item{background:var(--white);border:1px solid var(--border);border-radius:var(--rad-sm);padding:10px 12px;cursor:pointer;}
+.map-area{background:#E8F0E8;position:relative;min-height:500px;overflow:hidden;}
+
+/* ─── COMMUNITY ─── */
+.comm-grid{display:grid;grid-template-columns:1fr;gap:10px;}
+.comm-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rad);padding:16px;}
+.comm-user{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.comm-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.comm-name{font-size:13px;font-weight:700;}.comm-time{font-size:11px;color:var(--faint);}
+.comm-text{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="logo">
+    <div class="logo-box">🏷️</div>
+    <span class="logo-txt">MomDeals</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <div class="nav-link on" id="navFeed" onclick="navGo('feed')">스케줄 맞춤 피드</div>
+    <div class="nav-link" id="navCal" onclick="navGo('cal')">학교 행사 캘린더</div>
+    <div class="nav-link" id="navMap" onclick="navGo('map')">근처 지도</div>
+    <div class="nav-link" id="navComm" onclick="navGo('comm')">커뮤니티</div>
+  </div>
+  <div class="nav-right">
+    <select class="lang-sel" aria-label="언어"><option>🇰🇷 한국어</option><option>🇺🇸 English</option></select>
+    <button class="btn" onclick="goScreen('s-onb')">로그인</button>
+    <button class="btn pri" onclick="goScreen('s-onb')">무료 시작</button>
+  </div>
+</nav>
+
+<div class="screen on" id="s-land">
+  <div class="hero">
+    <div class="hero-pill">🇺🇸 LA · OC · 한인 엄마 커뮤니티</div>
+    <h1>우리아이 방과후 활동 필수품<br><em>최대 할인</em>을 찾아드려요</h1>
+    <p>수영, 미술, 학원 스케줄을 입력하면<br>해당 수업에 필요한 준비물과 주변 생필품 핫딜을 실시간 추천해드려요</p>
+    <div class="hero-btns">
+      <button class="hero-btn-pri" onclick="goScreen('s-onb')">스케줄 맞춤 할인 찾기 →</button>
+      <button class="hero-btn-sec" onclick="goScreen('s-onb')">둘러보기</button>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon">🎯</div><div class="feat-t">연관 품목 저격</div><div class="feat-d">수영학원 가는 날엔 수영복 클리어런스 세일 정보를 매칭합니다</div></div>
+      <div class="feat-card"><div class="feat-icon">🤖</div><div class="feat-t">AI 스케줄 매칭</div><div class="feat-d">아이의 관심사와 일정에 꼭 맞는 최적의 핫딜만 쏙쏙 뽑아드려요</div></div>
+      <div class="feat-card"><div class="feat-icon">🎒</div><div class="feat-t">학교 행사 체크리스트</div><div class="feat-d">행사별 준비물 목록과 근처 마트 할인 정보를 연동해드려요</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="s-onb">
+  <div class="onb-wrap">
+    <div class="info-banner">🧪 <div>지금은 테스트 버전이에요. 입력하신 정보를 바탕으로 샘플 추천 결과를 보여드려요!</div></div>
+
+    <div id="onb-step1">
+      <div class="step-indicator"><div class="step-seg done"></div><div class="step-seg"></div><div class="step-seg"></div></div>
+      <div class="step-head">
+        <div class="step-label">1단계 / 3</div>
+        <div class="step-title">기본 정보 & 내 위치 설정</div>
+        <div class="step-sub">주변 할인 정보를 찾기 위해 필요해요</div>
+      </div>
+      <div class="card">
+        <div class="row2">
+          <div class="fw"><label class="lbl">이름 / 닉네임</label><input id="f-name" placeholder="예: 김수진"/></div>
+          <div class="fw"><label class="lbl">주 활동 지역</label>
+            <select id="f-area"><option>Irvine</option><option>Torrance</option><option>LA Koreatown</option></select>
+          </div>
+        </div>
+      </div>
+      <button class="big-btn" onclick="nextStep(2)">다음 단계 →</button>
+    </div>
+
+    <div id="onb-step2" style="display:none;">
+      <div class="step-indicator"><div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg"></div></div>
+      <div class="step-head">
+        <div class="step-label">2단계 / 3</div>
+        <div class="step-title">아이 방과후 활동 및 스케줄</div>
+        <div class="step-sub">입력하신 활동(예: 수영)과 관련된 장비/준비물 최대 할인을 찾아드려요!</div>
+      </div>
+      <div id="childrenWrap">
+        <div class="card">
+          <div class="row2" style="margin-bottom:12px;">
+            <div class="fw"><label class="lbl">이름</label><input class="child-name" value="지아"/></div>
+            <div class="fw"><label class="lbl">나이</label><input class="child-age" value="TK"/></div>
+          </div>
+          <div class="fw"><label class="lbl">관심 활동 (준비물 매칭 키워드)</label><input class="child-acts" value="수영, 미술, 발레"/></div>
+          <div class="fw"><label class="lbl">고정 스케줄</label><input class="child-scheds" value="수요일 오후 4시 수영, 금요일 3시 미술"/></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="big-btn ghost" onclick="nextStep(1)">← 이전</button>
+        <button class="big-btn" onclick="nextStep(3)">다음 단계 →</button>
+      </div>
+    </div>
+
+    <div id="onb-step3" style="display:none;">
+      <div class="step-indicator"><div class="step-seg done"></div><div class="step-seg done"></div><div class="step-seg done"></div></div>
+      <div class="step-head">
+        <div class="step-label">3단계 / 3</div>
+        <div class="step-title">학교 정보 연동 (선택)</div>
+        <div class="step-sub">학교 주요 행사에 맞는 준비물 리스트를 미리 알려드려요</div>
+      </div>
+      <div class="card">
+        <div class="fw"><label class="lbl">학교 이름</label><input id="f-school" value="Stone Creek Elementary"/></div>
+      </div>
+      <div class="btn-row">
+        <button class="big-btn ghost" onclick="nextStep(2)">← 이전</button>
+        <button class="big-btn green" onclick="finishOnboarding()">✨ 스케줄 맞춤 할인 보기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="s-result">
+  <div class="result-layout">
+    
+    <aside class="sidebar">
+      <div class="sb-lbl">내 아이 스케줄 연동</div>
+      <div class="sb-child-wrap" id="sbChildArea"></div>
+      
+      <div class="sb-lbl">메뉴</div>
+      <div class="sb-item on" id="sbFeed" onclick="navGo('feed')"><span class="sb-icon">🎒</span>스케줄 맞춤 피드</div>
+      <div class="sb-item" id="sbCal" onclick="navGo('cal')"><span class="sb-icon">📅</span>학교 행사 캘린더</div>
+      <div class="sb-item" id="sbMap" onclick="navGo('map')"><span class="sb-icon">📍</span>근처 마트/학원 지도</div>
+      <div class="sb-item" id="sbComm" onclick="navGo('comm')"><span class="sb-icon">💬</span>동네 꿀팁 방</div>
+    </aside>
+
+    <main class="content-area">
+      
+      <div id="p-feed" style="display:block;">
+        <h2 class="page-title">✨ 우리 아이 활동 맞춤 최대 할인 품목</h2>
+        <p class="page-sub">지아의 스케줄(수영, 미술) 및 동네 마트 기준 가장 높은 할인율의 연관 상품입니다.</p>
+
+        <div class="smart-banner" id="aiSmartBanner">
+          <div class="sb-spark">🤖</div>
+          <div style="flex:1;">
+            <div class="sb-t" id="sumBadge">Groq AI 스케줄 연관 품목 분석</div>
+            <div class="sb-s" id="aiOut">우측의 '분석하기' 버튼을 누르면 인공지능이 오늘 스케줄에 꼭 필요한 준비물과 최대 할인 정보를 찾아냅니다!</div>
+          </div>
+          <button class="btn pri" onclick="runAIAnalysis()" style="font-size:11px;padding:5px 10px;white-space:nowrap;margin-left:8px;">🤖 분석하기</button>
+        </div>
+
+        <div class="filter-row">
+          <button class="f-chip on">전체 딜</button>
+          <button class="f-chip">🏊 수영 연관 핫딜</button>
+          <button class="f-chip">🎨 미술 연관 핫딜</button>
+          <button class="f-chip">🛒 틈새시간 장보기</button>
+        </div>
+
+        <div class="sec-lbl">🔥 오늘 스케줄 맞춤 추천 딜 (최대 할인순)</div>
+        <div class="deals-grid" id="feedDealsGrid"></div>
+      </div>
+
+      <div id="p-cal" style="display:none;">
+        <h2 class="page-title">📅 학교 행사 캘린더 & 준비물 체크리스트</h2>
+        <p class="page-sub">학교 행사에 필요한 물품과 주변 마트 할인 정보를 매칭해 드려요.</p>
+        <div class="ev-grid" id="calGrid"></div>
+        <div id="calDetailArea"></div>
+      </div>
+
+      <div id="p-map" style="display:none;"><div class="page-title">📍 근처 지도</div></div>
+      <div id="p-comm" style="display:none;"><div class="page-title">💬 커뮤니티</div></div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ─── STATIC DATA (FOCUSED ON ACTIVITY MAX DISCOUNTS) ───
+const DEALS = [
+  {id:0, cat:'k', title:'Target 아동 실내 수영복 클리어런스', store:'Target Irvine', dist:'0.8 mi', disc:'70% OFF', why:'🏊 오늘 수영 레슨 연관 품목 (최대 할인!)', liked:true, likes:42},
+  {id:1, cat:'k', title:'Michaels 스케치북 & 크레용 세트', store:'Michaels', dist:'1.3 mi', disc:'Buy 1 Get 1', why:'🎨 금요일 미술 학원 준비물 비축 찬스', liked:false, likes:18},
+  {id:2, cat:'k', title:'Speedo 아동용 물안경 한정 세일', store:'Dick\'s Sporting Goods', dist:'2.1 mi', disc:'50% OFF', why:'🏊 수영 필수 장비 세일', liked:false, likes:25},
+  {id:3, cat:'g', title:'H마트 유기농 딸기 팩 세일', store:'H-Mart Irvine', dist:'1.2 mi', disc:'$3.99/팩', why:'🛒 수영 끝나고 픽업 전 장보기 꿀딜', liked:false, likes:30},
+  {id:4, cat:'k
